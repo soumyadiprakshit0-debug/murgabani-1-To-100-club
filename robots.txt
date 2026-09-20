@@ -1,4 +1,4 @@
  User-agent: *
 Allow: /
 
-Sitemap: https://soumyadiprakshit0-debug.github.io/murgabani-1-To-100-club/sitemap.xml
+Sitemap: https://murgabani-1-to-100-club.onrender.com/sitemap.xml
