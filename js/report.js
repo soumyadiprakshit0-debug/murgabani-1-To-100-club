@@ -3067,7 +3067,7 @@ function drawPDFFooter(
 // This prevents accidental page-count problems.
 // ============================================================
 
-function applyPDFHeadersAndFooters(
+/* function applyPDFHeadersAndFooters(
     pdf,
     logoData
 ) {
@@ -3165,6 +3165,31 @@ function applyPDFHeadersAndFooters(
 
     }
 
+}*/
+
+
+    
+function applyPDFHeadersAndFooters(pdf, logoData, pageTitles = {}) {
+    const totalPages = pdf.getNumberOfPages();
+
+    const yearElement = getReportElement("year");
+    const pujaElement = getReportElement("puja");
+
+    const selectedYear = yearElement ? yearElement.value : "";
+    const selectedPuja = pujaElement ? pujaElement.value : "";
+
+    for (let page = 1; page <= totalPages; page++) {
+        pdf.setPage(page);
+
+        // Use the section assigned to this actual PDF page.
+        // This also handles automatically added continuation pages.
+        const title = pageTitles[page] || "FINANCIAL REPORT";
+
+        const subtitle = `${selectedYear} • ${selectedPuja}`;
+
+        drawPDFHeader(pdf, logoData, title, subtitle);
+        drawPDFFooter(pdf, page, totalPages);
+    }
 }
 
 
@@ -5306,7 +5331,7 @@ async function generateReportPDF(
         const logoData =
             await loadPDFLogo();
 
-
+/*
         // ==================================================
         // PAGE 1
         // ==================================================
@@ -5368,6 +5393,103 @@ async function generateReportPDF(
         applyPDFHeadersAndFooters(
             pdf,
             logoData
+        );
+*/
+
+        
+        // ==================================================
+        // BUILD SECTIONS AND TRACK ACTUAL PAGE NUMBERS
+        // ==================================================
+
+        const pageTitles = {};
+
+        // PAGE 1: Financial Statement
+        buildSummaryPage(
+            pdf,
+            selectedYear,
+            selectedPuja
+        );
+
+        pageTitles[pdf.getNumberOfPages()] =
+            "FINANCIAL STATEMENT";
+
+
+        // VILLAGE COLLECTION: may span multiple pages
+        let sectionStart = pdf.getNumberOfPages() + 1;
+
+        buildVillagePage(
+            pdf,
+            selectedYear,
+            selectedPuja
+        );
+
+        for (
+            let page = sectionStart;
+            page <= pdf.getNumberOfPages();
+            page++
+        ) {
+            pageTitles[page] = "VILLAGE COLLECTION";
+        }
+
+
+        // MEMBERS COLLECTION
+        sectionStart = pdf.getNumberOfPages() + 1;
+
+        buildMemberPage(
+            pdf,
+            selectedYear,
+            selectedPuja
+        );
+
+        for (
+            let page = sectionStart;
+            page <= pdf.getNumberOfPages();
+            page++
+        ) {
+            pageTitles[page] = "MEMBERS COLLECTION";
+        }
+
+
+        // EXPENSE DETAILS
+        sectionStart = pdf.getNumberOfPages() + 1;
+
+        buildExpensePage(
+            pdf,
+            selectedYear,
+            selectedPuja
+        );
+
+        for (
+            let page = sectionStart;
+            page <= pdf.getNumberOfPages();
+            page++
+        ) {
+            pageTitles[page] = "EXPENSE DETAILS";
+        }
+
+
+        // FINANCIAL CHARTS
+        sectionStart = pdf.getNumberOfPages() + 1;
+
+        buildChartsPage(
+            pdf,
+            selectedPuja
+        );
+
+        for (
+            let page = sectionStart;
+            page <= pdf.getNumberOfPages();
+            page++
+        ) {
+            pageTitles[page] = "FINANCIAL CHARTS";
+        }
+
+
+        // APPLY CORRECT HEADER AND FOOTER TO EVERY PAGE
+        applyPDFHeadersAndFooters(
+            pdf,
+            logoData,
+            pageTitles
         );
 
 
