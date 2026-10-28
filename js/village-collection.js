@@ -168,12 +168,35 @@ contributorInput.addEventListener("input", function () {
        MESSAGE HANDLING
        ===================================================== */
 
-    function showMessage(message, type = "error") {
-        messageBox.textContent = message;
-        messageBox.className = "message " + type;
-        messageBox.style.display = "block";
-    }
+/* =====================================================
+   PROFESSIONAL MESSAGE HANDLING
+   ===================================================== */
 
+function showMessage(message, type = "error") {
+    if (!messageBox) return;
+
+    messageBox.textContent = message;
+    messageBox.className = "message " + type;
+    messageBox.style.display = "block";
+    messageBox.setAttribute("role", "alert");
+    messageBox.setAttribute("aria-live", "assertive");
+
+    messageBox.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+}
+
+function clearMessage() {
+    if (!messageBox) return;
+
+    messageBox.textContent = "";
+    messageBox.className = "message";
+    messageBox.style.display = "none";
+    messageBox.removeAttribute("role");
+    messageBox.removeAttribute("aria-live");
+}
+   
     function clearMessage() {
         messageBox.textContent = "";
         messageBox.className = "message";
@@ -225,37 +248,119 @@ contributorInput.addEventListener("input", function () {
         }
     }
 
-   
-/* =====================================================
-   SUCCESS CONFIRMATION
+   /* =====================================================
+   PREMIUM SUCCESS CONFIRMATION MODAL
    ===================================================== */
 
 function showConfirmation(result) {
-    const savedAmount = Number(result.amount);
+    // Prevent multiple confirmation dialogs.
+    document.querySelector(".vc-modal-backdrop")?.remove();
 
-    const details = [
-        "✓ VILLAGE COLLECTION SAVED SUCCESSFULLY",
-        "",
-        "Collection ID : " + (result.collectionId || "N/A"),
-        "Contributor   : " + contributorInput.value.trim(),
-        "Amount        : ₹" + (
-            Number.isFinite(savedAmount)
-                ? savedAmount.toFixed(2)
-                : amountInput.value
-        ),
-        "Financial Year: " + year,
-        "Puja          : " + puja,
-        "Recorded By   : " + (result.collectorName || memberName),
-        "",
-        "The collection has been recorded.",
-        "Please keep the Collection ID for reference."
-    ].join("\n");
+    const savedAmount = Number(result.amount ?? amountInput.value);
 
-    window.alert(details);
+    const backdrop = document.createElement("div");
+    backdrop.className = "vc-modal-backdrop";
 
-    form.reset();
-    clearMessage();
+    backdrop.innerHTML = `
+        <section
+            class="vc-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="vcModalTitle"
+            aria-describedby="vcModalSubtitle"
+            tabindex="-1"
+        >
+            <div class="vc-modal-icon" aria-hidden="true">✓</div>
+
+            <h2 class="vc-modal-title" id="vcModalTitle">
+                Collection Saved!
+            </h2>
+
+            <p class="vc-modal-subtitle" id="vcModalSubtitle">
+                Your village collection has been recorded successfully.
+            </p>
+
+            <div class="vc-collection-id">
+                <span class="vc-collection-id-label">
+                    Collection ID
+                </span>
+                <span class="vc-collection-id-value" id="vcCollectionId"></span>
+            </div>
+
+            <div class="vc-details">
+                <div class="vc-detail-row">
+                    <span class="vc-detail-label">Contributor</span>
+                    <span class="vc-detail-value" id="vcContributor"></span>
+                </div>
+
+                <div class="vc-detail-row">
+                    <span class="vc-detail-label">Amount</span>
+                    <span class="vc-detail-value amount" id="vcAmount"></span>
+                </div>
+
+                <div class="vc-detail-row">
+                    <span class="vc-detail-label">Financial Year</span>
+                    <span class="vc-detail-value" id="vcYear"></span>
+                </div>
+
+                <div class="vc-detail-row">
+                    <span class="vc-detail-label">Puja</span>
+                    <span class="vc-detail-value" id="vcPuja"></span>
+                </div>
+
+                <div class="vc-detail-row">
+                    <span class="vc-detail-label">Recorded By</span>
+                    <span class="vc-detail-value" id="vcCollector"></span>
+                </div>
+            </div>
+
+            <div class="vc-modal-note">
+                Please keep the Collection ID for future reference.
+            </div>
+
+            <button type="button" class="vc-modal-button" id="vcDoneButton">
+                Done
+            </button>
+        </section>
+    `;
+
+    // Use textContent for user-provided values.
+    // This prevents entered names from being interpreted as HTML.
+    backdrop.querySelector("#vcCollectionId").textContent =
+        result.collectionId || "Not provided";
+
+    backdrop.querySelector("#vcContributor").textContent =
+        contributorInput.value.trim();
+
+    backdrop.querySelector("#vcAmount").textContent =
+        Number.isFinite(savedAmount)
+            ? "₹" + savedAmount.toFixed(2)
+            : "₹" + amountInput.value;
+
+    backdrop.querySelector("#vcYear").textContent = year;
+    backdrop.querySelector("#vcPuja").textContent = puja;
+
+    backdrop.querySelector("#vcCollector").textContent =
+        result.collectorName || memberName;
+
+    document.body.appendChild(backdrop);
+
+    const modal = backdrop.querySelector(".vc-modal");
+    const doneButton = backdrop.querySelector("#vcDoneButton");
+
+    doneButton.addEventListener("click", () => {
+        backdrop.remove();
+        form.reset();
+        clearMessage();
+        contributorInput.focus();
+    });
+
+    modal.focus();
+
+    // Move keyboard focus into the modal.
+    doneButton.focus();
 }
+
     
     /* =====================================================
        SAVE COLLECTION
