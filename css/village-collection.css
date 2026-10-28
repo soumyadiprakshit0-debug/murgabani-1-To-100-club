@@ -1007,3 +1007,269 @@ a {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* =====================================================
+   VILLAGE COLLECTION — MESSAGES & CONFIRMATION MODAL
+   ===================================================== */
+
+/* ---------- General message box ---------- */
+
+#formMessage {
+    display: none;
+    margin: 18px 0;
+    padding: 15px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.65;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    border: 1px solid transparent;
+}
+
+#formMessage.error {
+    display: block;
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+#formMessage.success {
+    display: block;
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+#formMessage.warning {
+    display: block;
+    color: #92400e;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+/* ---------- Modal backdrop ---------- */
+
+.vc-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: vcFadeIn 180ms ease-out;
+}
+
+/* ---------- Modal card ---------- */
+
+.vc-modal {
+    width: 100%;
+    max-width: 430px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+    padding: 28px 24px 24px;
+    animation: vcSlideUp 220ms ease-out;
+    color: #172033;
+}
+
+/* ---------- Success icon ---------- */
+
+.vc-modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.vc-modal-title {
+    margin: 0;
+    text-align: center;
+    font-size: 22px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: #166534;
+}
+
+.vc-modal-subtitle {
+    margin: 9px 0 22px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #64748b;
+}
+
+/* ---------- Collection ID highlight ---------- */
+
+.vc-collection-id {
+    padding: 15px;
+    margin-bottom: 18px;
+    border: 1px dashed #86efac;
+    border-radius: 14px;
+    background: #f0fdf4;
+    text-align: center;
+}
+
+.vc-collection-id-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #15803d;
+}
+
+.vc-collection-id-value {
+    display: block;
+    font-size: 21px;
+    font-weight: 800;
+    color: #166534;
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Collection details ---------- */
+
+.vc-details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    margin: 0 0 20px;
+    padding: 0;
+}
+
+.vc-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.vc-detail-row:last-child {
+    border-bottom: none;
+}
+
+.vc-detail-label {
+    flex: 0 0 42%;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.vc-detail-value {
+    flex: 1;
+    text-align: right;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    font-weight: 650;
+    color: #172033;
+}
+
+.vc-detail-value.amount {
+    color: #166534;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+/* ---------- Modal footer ---------- */
+
+.vc-modal-note {
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.vc-modal-button {
+    width: 100%;
+    min-height: 49px;
+    border: none;
+    border-radius: 12px;
+    background: #15803d;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease;
+}
+
+.vc-modal-button:hover {
+    background: #166534;
+}
+
+.vc-modal-button:active {
+    transform: scale(0.98);
+}
+
+.vc-modal-button:focus-visible {
+    outline: 3px solid #86efac;
+    outline-offset: 3px;
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes vcFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes vcSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 420px) {
+    .vc-modal-backdrop {
+        padding: 12px;
+    }
+
+    .vc-modal {
+        padding: 24px 18px 19px;
+        border-radius: 18px;
+    }
+
+    .vc-modal-title {
+        font-size: 20px;
+    }
+
+    .vc-collection-id-value {
+        font-size: 19px;
+    }
+}
+
+/* ---------- Reduced motion accessibility ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .vc-modal-backdrop,
+    .vc-modal {
+        animation: none;
+    }
+
+    .vc-modal-button {
+        transition: none;
+    }
+}
