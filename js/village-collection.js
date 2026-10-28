@@ -26,6 +26,25 @@
 
     const form = document.getElementById("transactionForm");
     const contributorInput = document.getElementById("contributorName");
+
+/* =====================================================
+   CONTRIBUTOR NAME FORMATTING
+   Capitalize the first letter of each word
+   ===================================================== */
+
+contributorInput.addEventListener("input", function () {
+    const start = this.selectionStart;
+    const end = this.selectionEnd;
+
+    this.value = this.value.replace(
+        /(^|\s)(\p{L})/gu,
+        (match, separator, letter) =>
+            separator + letter.toLocaleUpperCase("en-IN")
+    );
+
+    this.setSelectionRange(start, end);
+});
+   
     const amountInput = document.getElementById("amount");
     const noteInput = document.getElementById("note");
 
