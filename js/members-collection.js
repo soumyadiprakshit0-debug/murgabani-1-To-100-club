@@ -81,7 +81,7 @@
         "puja", "selectedPuja", "contextPuja"
     ]);
 
-    function dashboardURL() {
+   /* function dashboardURL() {
         if (memberRole.includes("admin")) {
             return DASHBOARDS.admin;
         }
@@ -95,7 +95,35 @@
 
     function goBack() {
         location.href = dashboardURL();
+    }*/
+
+   function dashboardURL() {
+    const savedDashboard = sessionStorage.getItem("returnDashboard");
+
+    if (
+        savedDashboard === "admin-dashboard.html" &&
+        memberRole.includes("admin")
+    ) {
+        return savedDashboard;
     }
+
+    if (
+        savedDashboard === "member-dashboard.html" &&
+        memberRole.includes("member")
+    ) {
+        return savedDashboard;
+    }
+
+    if (memberRole.includes("admin")) {
+        return DASHBOARDS.admin;
+    }
+
+    if (memberRole.includes("member")) {
+        return DASHBOARDS.member;
+    }
+
+    return DASHBOARDS.default;
+}
 
     /* ---------------- Messages ---------------- */
 
