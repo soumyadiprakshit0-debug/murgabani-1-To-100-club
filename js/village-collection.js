@@ -225,34 +225,38 @@ contributorInput.addEventListener("input", function () {
         }
     }
 
-    /* =====================================================
-       SUCCESS CONFIRMATION
-       ===================================================== */
+   
+/* =====================================================
+   SUCCESS CONFIRMATION
+   ===================================================== */
 
-    function showConfirmation(result) {
-        const savedAmount = Number(result.amount);
+function showConfirmation(result) {
+    const savedAmount = Number(result.amount);
 
-        const details = [
-            "Village collection saved successfully!",
-            "",
-            "Collection ID: " + result.collectionId,
-            "Contributor: " + contributorInput.value.trim(),
-            "Amount: ₹" + (
-                Number.isFinite(savedAmount)
-                    ? savedAmount.toFixed(2)
-                    : amountInput.value
-            ),
-            "Year: " + year,
-            "Puja: " + puja,
-            "Recorded by: " + (result.collectorName || memberName)
-        ].join("\n");
+    const details = [
+        "✓ VILLAGE COLLECTION SAVED SUCCESSFULLY",
+        "",
+        "Collection ID : " + (result.collectionId || "N/A"),
+        "Contributor   : " + contributorInput.value.trim(),
+        "Amount        : ₹" + (
+            Number.isFinite(savedAmount)
+                ? savedAmount.toFixed(2)
+                : amountInput.value
+        ),
+        "Financial Year: " + year,
+        "Puja          : " + puja,
+        "Recorded By   : " + (result.collectorName || memberName),
+        "",
+        "The collection has been recorded.",
+        "Please keep the Collection ID for reference."
+    ].join("\n");
 
-        window.alert(details);
+    window.alert(details);
 
-        form.reset();
-        clearMessage();
-    }
-
+    form.reset();
+    clearMessage();
+}
+    
     /* =====================================================
        SAVE COLLECTION
        ===================================================== */
@@ -264,10 +268,21 @@ contributorInput.addEventListener("input", function () {
 
         clearMessage();
 
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
+       if (!form.checkValidity()) {
+    if (amountInput.validity.rangeUnderflow) {
+        showMessage(
+            "⚠️ Invalid collection amount.\n\n" +
+            "Please enter an amount greater than zero.",
+            "error"
+        );
+
+        amountInput.focus();
+        return;
+    }
+
+    form.reportValidity();
+    return;
+}
 
         if (!memberId || !memberName || !memberRole) {
             showMessage("Please log in again before saving.");
