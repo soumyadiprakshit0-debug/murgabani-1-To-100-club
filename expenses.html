@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1b35">
+
+    <meta
+        name="description"
+        content="Record and manage expenses for MURGABANI 1 TO 100 CLUB."
+    >
+
+    <title>Record an Expense | MURGABANI 1 TO 100 CLUB</title>
+
+    <!-- Expense Page Stylesheet -->
+    <link rel="stylesheet" href="css/expenses.css">
+
+    
+
+    <!-- Dashboard navigation -->
+    <script defer src="js/expenses.js"></script>
+</head>
+
+<body data-module="expenses">
+
+    <main class="page-shell">
+
+        <!-- Back to the correct dashboard -->
+        <a
+            class="back-link"
+            href="admin-dashboard.html"
+            id="backLink"
+        >
+            <span class="back-icon" aria-hidden="true">❮❮</span>
+            <span>Back to Dashboard</span>
+        </a>
+
+
+        <!-- Page Header -->
+        <header class="page-header">
+
+            <div class="brand-mark" aria-hidden="true">
+                E
+            </div>
+
+            <div class="header-content">
+
+                <p class="eyebrow">
+                    MURGABANI 1 TO 100 CLUB
+                </p>
+
+                <h1>Record an Expense</h1>
+
+                <p class="subtitle">
+                    Record your Puja expenses simply and securely.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- Current Dashboard Context -->
+        <section
+            class="context-card"
+            aria-label="Current transaction information"
+        >
+
+            <div class="context-item">
+
+                <span class="context-label">
+                    Financial Year
+                </span>
+
+                <strong id="contextYear">
+                    Loading…
+                </strong>
+
+            </div>
+
+
+            <div class="context-item">
+
+                <span class="context-label">
+                    Puja
+                </span>
+
+                <strong id="contextPuja">
+                    Loading…
+                </strong>
+
+            </div>
+
+
+            <div class="context-item">
+
+                <span class="context-label">
+                    Recorded By
+                </span>
+
+                <strong id="contextCollector">
+                    Loading…
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- Expense Form -->
+        <section class="form-card">
+
+            <div class="section-heading">
+
+                <div class="section-icon" aria-hidden="true">
+                    ₹
+                </div>
+
+                <div>
+                    <h2>Expense Details</h2>
+
+                    <p>
+                        Enter the details of your expense.
+                        Fields marked <em>*</em> are required.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <form id="transactionForm" novalidate>
+
+                <!-- Expense Name -->
+                <div class="form-group">
+
+                    <label for="expenseName">
+                        Expense Name
+                        <em>*</em>
+                    </label>
+
+                    <input
+                        id="expenseName"
+                        name="expenseName"
+                        type="text"
+                        maxlength="160"
+                        placeholder="e.g. Decoration materials"
+                        autocomplete="off"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Category -->
+                <div class="form-group">
+
+                    <label for="category">
+                        Expense Category
+                        <em>*</em>
+                    </label>
+
+                    <select
+                        id="category"
+                        name="category"
+                        required
+                    >
+
+                        <option value="">
+                            Select a category
+                        </option>
+
+                        <option value="Puja essentials">
+                            Puja essentials
+                        </option>
+
+                        <option value="Decoration items">
+                            Decoration items
+                        </option>
+
+                        <option value="Decorators & Light">
+                            Decorators &amp; Light
+                        </option>
+
+                        <option value="Sound">
+                            Sound
+                        </option>
+
+                        <option value="Food">
+                            Food
+                        </option>
+
+                        <option value="Others">
+                            Others
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Amount -->
+                <div class="form-group">
+
+                    <label for="amount">
+                        Amount
+                        <em>*</em>
+                    </label>
+
+                    <div class="amount-wrapper">
+
+                        <span
+                            class="currency-symbol"
+                            aria-hidden="true"
+                        >
+                            ₹
+                        </span>
+
+                        <input
+                            id="amount"
+                            name="amount"
+                            type="number"
+                            inputmode="decimal"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="0.00"
+                            required
+                        >
+
+                    </div>
+
+                    <small class="field-hint">
+                        Enter the expense amount in Indian Rupees.
+                    </small>
+
+                </div>
+
+
+                <!-- Optional Note -->
+                <div class="form-group">
+
+                    <label for="note">
+                        Note
+                        <span class="optional-label">Optional</span>
+                    </label>
+
+                    <textarea
+                        id="note"
+                        name="note"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Add additional details if necessary..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Feedback -->
+                <div
+                    class="message"
+                    id="formMessage"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+
+                <!-- Actions -->
+                <div class="button-row">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelBtn"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                        id="submitBtn"
+                    >
+                        <span aria-hidden="true">＋</span>
+                        Save Expense
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- Automatic Record Information -->
+        <aside class="system-notice">
+
+            <div class="notice-icon" aria-hidden="true">
+                ✓
+            </div>
+
+            <div class="notice-content">
+
+                <strong>Automatic Record Keeping</strong>
+
+                <p>
+                    The system will record the expense ID, date,
+                    financial year, Puja, logged-in user's name,
+                    and Collector ID automatically.
+                </p>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Footer -->
+        <footer class="page-footer">
+
+            <p class="footer-brand">
+                MURGABANI 1 TO 100 CLUB
+            </p>
+
+            <p class="footer-tagline">
+                Many Minds, Many Thoughts —
+                United by One Mission, One Vision.
+            </p>
+
+            <p class="footer-copyright">
+                Established 2013 · Club Management System
+            </p>
+
+        </footer>
+
+    </main>
+
+</body>
+</html>
