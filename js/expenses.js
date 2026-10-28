@@ -108,16 +108,32 @@
     ]);
 
     function getDashboardURL() {
-        if (memberRole.includes("admin")) {
-            return DASHBOARDS.admin;
-        }
+    const savedDashboard = sessionStorage.getItem("returnDashboard");
 
-        if (memberRole.includes("member")) {
-            return DASHBOARDS.member;
-        }
-
-        return DASHBOARDS.default;
+    if (
+        savedDashboard === "admin-dashboard.html" &&
+        memberRole.includes("admin")
+    ) {
+        return savedDashboard;
     }
+
+    if (
+        savedDashboard === "member-dashboard.html" &&
+        memberRole.includes("member")
+    ) {
+        return savedDashboard;
+    }
+
+    if (memberRole.includes("admin")) {
+        return DASHBOARDS.admin;
+    }
+
+    if (memberRole.includes("member")) {
+        return DASHBOARDS.member;
+    }
+
+    return DASHBOARDS.default;
+}
 
     function goBackToDashboard() {
         window.location.href = getDashboardURL();
