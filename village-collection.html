@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="theme-color" content="#123b2a">
+    <meta name="description"
+          content="Village Collection management for MURGABANI 1 TO 100 CLUB.">
+
+    <title>Village Collection | MURGABANI 1 TO 100 CLUB</title>
+
+    <!-- Village Collection stylesheet -->
+    <link rel="stylesheet" href="css/village-collection.css">
+
+    <!-- Village Collection backend integration -->
+    <script defer src="js/village-collection.js"></script>
+
+    <!-- Dashboard navigation -->
+    <script defer src="js/village-navigation.js"></script>
+</head>
+
+<body data-module="village">
+
+    <main class="page-shell">
+
+        <!-- Back to the logged-in user's dashboard -->
+        <a class="back-link"
+           href="login.html"
+           id="backLink"
+           aria-label="Return to your dashboard">
+
+            <span class="back-icon" aria-hidden="true">❮❮</span>
+            <span>Back to Dashboard</span>
+
+        </a>
+
+        <!-- Page Header -->
+        <header class="page-header">
+
+            <div class="brand-mark" aria-hidden="true">V</div>
+
+            <div class="header-content">
+
+                <p class="eyebrow">
+                    MURGABANI 1 TO 100 CLUB
+                </p>
+
+                <h1>Village Collection</h1>
+
+                <p class="subtitle">
+                    Record a village contribution simply and securely.
+                </p>
+
+            </div>
+
+        </header>
+
+        <!-- Year, Puja and Collector -->
+        <section class="context-card"
+                 aria-label="Current transaction context">
+
+            <div class="context-item">
+                <span>Financial Year</span>
+                <strong id="contextYear">Loading…</strong>
+            </div>
+
+            <div class="context-item">
+                <span>Puja</span>
+                <strong id="contextPuja">Loading…</strong>
+            </div>
+
+            <div class="context-item">
+                <span>Recorded By</span>
+                <strong id="contextCollector">Loading…</strong>
+            </div>
+
+        </section>
+
+        <!-- Collection Form -->
+        <section class="form-card">
+
+            <div class="section-heading">
+
+                <div class="section-icon" aria-hidden="true">₹</div>
+
+                <div class="section-heading-content">
+
+                    <h2>Collection Details</h2>
+
+                    <p>
+                        Enter the details of the contribution.
+                        Fields marked <em>*</em> are required.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <form id="transactionForm" novalidate>
+
+                <!-- Contributor Name -->
+                <div class="form-group">
+
+                    <label for="contributorName">
+                        Contributor Name <em>*</em>
+                    </label>
+
+                    <input
+                        id="contributorName"
+                        name="contributorName"
+                        type="text"
+                        maxlength="120"
+                        placeholder="Enter contributor's name"
+                        autocomplete="name"
+                        required
+                    >
+
+                </div>
+
+                <!-- Amount -->
+                <div class="form-group">
+
+                    <label for="amount">
+                        Amount (₹) <em>*</em>
+                    </label>
+
+                    <div class="amount-wrapper">
+
+                        <span class="currency-symbol"
+                              aria-hidden="true">₹</span>
+
+                        <input
+                            id="amount"
+                            name="amount"
+                            type="number"
+                            inputmode="decimal"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="Enter amount"
+                            required
+                        >
+
+                    </div>
+
+                    <small class="field-hint">
+                        Enter the contribution amount in Indian Rupees.
+                    </small>
+
+                </div>
+
+                <!-- Optional Note -->
+                <div class="form-group">
+
+                    <label for="note">
+                        Note
+                        <span class="optional-label">(Optional)</span>
+                    </label>
+
+                    <textarea
+                        id="note"
+                        name="note"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Add a note if needed"
+                    ></textarea>
+
+                </div>
+
+                <!-- Success or Error Message -->
+                <div
+                    class="message"
+                    id="formMessage"
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                ></div>
+
+                <!-- Form Buttons -->
+                <div class="button-row">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelBtn"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                        id="submitBtn"
+                    >
+                        Save Collection
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        
+
+        <!-- Footer -->
+        <footer class="page-footer">
+
+            <p class="footer-brand">
+                MURGABANI 1 TO 100 CLUB
+            </p>
+
+            <p class="footer-tagline">
+                Many Minds, Many Thoughts — United by One Mission, One Vision.
+            </p>
+
+            <p class="footer-copyright">
+                &copy; 2013–2026 Murgabani 1 To 100 Club.
+                All rights reserved.
+            </p>
+
+        </footer>
+
+    </main>
+
+</body>
+
+</html>
