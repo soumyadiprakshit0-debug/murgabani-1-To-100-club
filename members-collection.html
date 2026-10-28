@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1b35">
+
+    <title>Members Collection | MURGABANI 1 TO 100 CLUB</title>
+
+    <link rel="stylesheet" href="./css/members-collection.css">
+    <script defer src="./js/members-collection.js"></script>
+</head>
+
+<body data-module="members">
+    <main class="page-shell">
+
+        <a href="login.html" class="back-link" id="backLink">
+            <span aria-hidden="true">❮❮</span>
+            <span>Back to Dashboard</span>
+        </a>
+
+        <header class="page-header">
+            <div class="brand-mark" aria-hidden="true">M</div>
+
+            <div class="header-content">
+                <p class="eyebrow">MURGABANI 1 TO 100 CLUB</p>
+                <h1>Members Collection</h1>
+                <p class="subtitle">Record member contributions</p>
+            </div>
+        </header>
+
+        <section class="context-card" aria-label="Transaction context">
+            <div class="context-item">
+                <span>Financial Year</span>
+                <strong id="contextYear">Loading…</strong>
+            </div>
+
+            <div class="context-item">
+                <span>Puja</span>
+                <strong id="contextPuja">Loading…</strong>
+            </div>
+
+            <div class="context-item">
+                <span>Recorded By</span>
+                <strong id="contextCollector">Loading…</strong>
+            </div>
+        </section>
+
+        <section class="form-card">
+            <div class="section-heading">
+                <h2>Contribution Details</h2>
+                <p>Complete the details below to record a contribution.</p>
+            </div>
+
+            <form id="transactionForm" novalidate>
+                <div class="form-group">
+                    <label for="memberName">
+                        Member Name <em>*</em>
+                    </label>
+
+                    <div class="member-select-wrapper">
+                        <input
+                            type="text"
+                            id="memberName"
+                            name="memberName"
+                            placeholder="Search by member name or ID"
+                            autocomplete="off"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="memberOptions"
+                            aria-describedby="memberHelp"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="memberDropdownBtn"
+                            class="member-dropdown-btn"
+                            aria-label="Show member list"
+                        >▾</button>
+
+                        <div
+                            id="memberOptions"
+                            class="member-options"
+                            role="listbox"
+                            hidden
+                        ></div>
+                    </div>
+
+                    <small class="field-hint" id="memberHelp">
+                        Search for a member and select the correct result.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount (₹) <em>*</em></label>
+
+                    <div class="amount-wrapper">
+                        <span class="currency-symbol" aria-hidden="true">₹</span>
+                        <input
+                            type="number"
+                            id="amount"
+                            name="amount"
+                            inputmode="decimal"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="Enter amount"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Payment Status <em>*</em></label>
+
+                    <select id="status" name="status" required>
+                        <option value="">Select payment status</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Partially Due">Partially Due</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="note">
+                        Note <span class="optional">Optional</span>
+                    </label>
+
+                    <textarea
+                        id="note"
+                        name="note"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Add additional information if needed"
+                    ></textarea>
+                </div>
+
+                <div
+                    class="message"
+                    id="formMessage"
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                ></div>
+
+                <div class="button-row">
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelBtn"
+                    >Cancel</button>
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                        id="submitBtn"
+                    >Save Contribution</button>
+                </div>
+            </form>
+        </section>
+
+        <footer class="footer-note">
+            <p><strong>MURGABANI 1 TO 100 CLUB</strong></p>
+            <p>Many Minds, Many Thoughts — United by One Mission, One Vision.</p>
+            <p class="copyright">Established 2013</p>
+        </footer>
+
+    </main>
+</body>
+</html>
