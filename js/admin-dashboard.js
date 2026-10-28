@@ -203,6 +203,48 @@ pujaSelect.addEventListener("change", loadDashboard);
 
 // Start
 loadDashboardInit();
+
+
+
+/* =====================================================
+   CUSTOM COLLECTION PAGE NAVIGATION
+   ===================================================== */
+
+function openCollectionPage(page) {
+    const yearSelect = document.getElementById("year");
+    const pujaSelect = document.getElementById("puja");
+
+    const year = yearSelect?.value || sessionStorage.getItem("selectedYear") || "";
+    const puja = pujaSelect?.value || sessionStorage.getItem("selectedPuja") || "";
+
+    if (!year || !puja) {
+        alert("Please select a year and Puja before opening this page.");
+        return;
+    }
+
+    // Preserve the dashboard filters.
+    sessionStorage.setItem("selectedYear", year);
+    sessionStorage.setItem("selectedPuja", puja);
+
+    // Preserve the correct return destination.
+    const isAdminDashboard =
+        window.location.pathname.toLowerCase().endsWith("admin-dashboard.html");
+
+    const dashboardPage = isAdminDashboard
+        ? "admin-dashboard.html"
+        : "member-dashboard.html";
+
+    sessionStorage.setItem("returnDashboard", dashboardPage);
+
+    // Pass the selected context to the collection page.
+    const url = new URL(page, window.location.href);
+    url.searchParams.set("year", year);
+    url.searchParams.set("puja", puja);
+    url.searchParams.set("_", Date.now());
+
+    window.location.href = url.href;
+}
+
 // ==========================
 // Road Collection Button
 // ==========================
@@ -220,52 +262,25 @@ document.getElementById("roadCollectionBtn").addEventListener("click", () => {
 
 });
 
-// ==========================
-// Village Collection Button
-// ==========================
-document.getElementById("villageCollectionBtn").addEventListener("click", () => {
 
-    const collectorName = sessionStorage.getItem("memberName") || "";
+/* Village Collection */
+document.getElementById("villageCollectionBtn")
+    ?.addEventListener("click", () => {
+        openCollectionPage("village-collection.html");
+    });
 
-    const url =
-        "https://docs.google.com/forms/d/e/1FAIpQLSe6ULSxFbaOss0mxjrdbBbdFzuBKIegpKK7KT9J7Ng8xiP2pw/viewform?usp=pp_url"
-        + "&entry.1655971270=" + encodeURIComponent(collectorName);
+/* Members Collection */
+document.getElementById("memberCollectionBtn")
+    ?.addEventListener("click", () => {
+        openCollectionPage("members-collection.html");
+    });
 
-   window.open(url, "_blank");
+/* Expenses */
+document.getElementById("expenseBtn")
+    ?.addEventListener("click", () => {
+        openCollectionPage("expenses.html");
+    });
 
-});
-// ==========================
-// Members Collection Button
-// ==========================
-
-document.getElementById("memberCollectionBtn").addEventListener("click", () => {
-
-    const puja = document.getElementById("puja").value;
-
-    const url =
-        "https://docs.google.com/forms/d/e/1FAIpQLSc_PCxt4ew8sKUPss5o7mf1H1V0cC7tzUCNBR7wOtSeifUkOQ/viewform?usp=pp_url" +
-        "&entry.168636625=" + encodeURIComponent(puja);
-
-    window.open(url, "_blank");
-
-});
-// ==========================
-// Expenses Button
-// ==========================
-// ==========================
-// Expenses Button
-// ==========================
-document.getElementById("expenseBtn").addEventListener("click", () => {
-
-    const paidBy = sessionStorage.getItem("memberName") || "";
-
-    const url =
-        "https://docs.google.com/forms/d/e/1FAIpQLSfBwCNd-avZ_9BLSbd0Osoq3oNjbr6xTfzD0vu9U6Czppy1-Q/viewform?usp=pp_url"
-        + "&entry.834757402=" + encodeURIComponent(paidBy);
-
-    window.open(url, "_blank");
-
-});
 // ==========================
 // Reports Button
 // ==========================
