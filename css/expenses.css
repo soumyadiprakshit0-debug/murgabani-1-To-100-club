@@ -1,14 +1,11 @@
+
 /* =====================================================
    MURGABANI 1 TO 100 CLUB
-   EXPENSES PAGE — PREMIUM RESPONSIVE UI
+   EXPENSES PAGE — FINAL RESPONSIVE STYLESHEET
    Theme: Navy Blue, Royal Gold and White
    ===================================================== */
 
-
-/* =====================================================
-   1. DESIGN TOKENS
-   ===================================================== */
-
+/* 1. DESIGN TOKENS */
 :root {
     --navy-950: #081326;
     --navy-900: #0d1b35;
@@ -30,7 +27,6 @@
 
     --success: #15803d;
     --success-bg: #f0fdf4;
-
     --danger: #b91c1c;
     --danger-bg: #fef2f2;
 
@@ -38,18 +34,11 @@
     --radius-md: 16px;
     --radius-lg: 22px;
 
-    --shadow-card:
-        0 12px 35px rgba(13, 27, 53, 0.07);
-
-    --shadow-button:
-        0 5px 14px rgba(13, 27, 53, 0.16);
+    --shadow-card: 0 12px 35px rgba(13, 27, 53, 0.07);
+    --shadow-button: 0 5px 14px rgba(13, 27, 53, 0.16);
 }
 
-
-/* =====================================================
-   2. GLOBAL RESET
-   ===================================================== */
-
+/* 2. GLOBAL RESET */
 * {
     box-sizing: border-box;
 }
@@ -62,42 +51,18 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
-
-    font-family:
-        Inter,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
     color: var(--text-primary);
-
     background:
-        radial-gradient(
-            circle at top right,
-            rgba(217, 173, 80, 0.10),
-            transparent 30%
-        ),
+        radial-gradient(circle at top right, rgba(217, 173, 80, 0.10), transparent 30%),
         var(--background);
-
     line-height: 1.6;
-
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
     font: inherit;
-}
-
-button,
-a,
-input,
-select,
-textarea {
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -105,51 +70,37 @@ button {
     cursor: pointer;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
 a {
     color: inherit;
 }
 
-
-/* =====================================================
-   3. PAGE CONTAINER
-   ===================================================== */
-
+/* 3. PAGE CONTAINER */
 .page-shell {
     width: min(100% - 32px, 720px);
-
     margin: 0 auto;
     padding: 28px 0 36px;
 }
 
-
-/* =====================================================
-   4. BACK TO DASHBOARD
-   ===================================================== */
-
+/* 4. BACK LINK */
 .back-link {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-
     margin-bottom: 22px;
     padding: 10px 15px;
-
     border: 1px solid var(--border);
     border-radius: 11px;
-
     background: rgba(255, 255, 255, 0.92);
-
     color: var(--navy-800);
-
     font-size: 13px;
     font-weight: 700;
-
     text-decoration: none;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .back-link:hover {
@@ -168,98 +119,67 @@ a {
     outline-offset: 3px;
 }
 
+.back-link[aria-disabled="true"] {
+    pointer-events: none;
+    opacity: 0.6;
+}
 
-/* =====================================================
-   5. PREMIUM PAGE HEADER
-   ===================================================== */
-
+/* 5. PAGE HEADER */
 .page-header {
     position: relative;
-
     display: flex;
     align-items: center;
     gap: 18px;
-
     overflow: hidden;
-
     padding: 28px 25px;
-
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: var(--radius-lg);
-
     background:
-        radial-gradient(
-            circle at 100% 0%,
-            rgba(217, 173, 80, 0.19),
-            transparent 42%
-        ),
-        linear-gradient(
-            135deg,
-            var(--navy-950),
-            var(--navy-800)
-        );
-
+        radial-gradient(circle at 100% 0%, rgba(217, 173, 80, 0.19), transparent 42%),
+        linear-gradient(135deg, var(--navy-950), var(--navy-800));
     color: #ffffff;
-
     box-shadow: var(--shadow-card);
 }
 
 .page-header::after {
     content: "";
-
     position: absolute;
     right: -55px;
     bottom: -105px;
-
     width: 200px;
     height: 200px;
-
     border: 1px solid rgba(237, 201, 117, 0.17);
     border-radius: 50%;
-
     pointer-events: none;
 }
 
 .brand-mark {
     position: relative;
     z-index: 1;
-
     display: grid;
     place-items: center;
-
     flex: 0 0 62px;
-
     width: 62px;
     height: 62px;
-
     border: 2px solid var(--gold-500);
     border-radius: 50%;
-
     background: rgba(255, 255, 255, 0.04);
-
     color: var(--gold-400);
-
     font-family: Georgia, serif;
     font-size: 33px;
     font-weight: 700;
-
-    box-shadow:
-        inset 0 0 0 4px rgba(217, 173, 80, 0.08),
-        0 0 20px rgba(217, 173, 80, 0.08);
+    box-shadow: inset 0 0 0 4px rgba(217, 173, 80, 0.08), 0 0 20px rgba(217, 173, 80, 0.08);
 }
 
 .header-content {
     position: relative;
     z-index: 1;
-
     min-width: 0;
 }
 
 .eyebrow {
     margin: 0 0 5px;
-
     color: var(--gold-400);
-
     font-size: 17px;
     font-weight: 800;
     letter-spacing: 1.5px;
@@ -268,9 +188,7 @@ a {
 
 .page-header h1 {
     margin: 0;
-
     color: #ffffff;
-
     font-size: clamp(25px, 4vw, 32px);
     font-weight: 750;
     letter-spacing: -0.7px;
@@ -279,32 +197,21 @@ a {
 
 .subtitle {
     margin: 8px 0 0;
-
     color: #d0d9e8;
-
     font-size: 14px;
     line-height: 1.6;
 }
 
-
-/* =====================================================
-   6. DASHBOARD CONTEXT CARD
-   ===================================================== */
-
+/* 6. DASHBOARD CONTEXT */
 .context-card {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-
     margin-top: 18px;
     padding: 20px 10px;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-
     background: var(--surface);
-
-    box-shadow:
-        0 5px 20px rgba(13, 27, 53, 0.035);
+    box-shadow: 0 5px 20px rgba(13, 27, 53, 0.035);
 }
 
 .context-item {
@@ -319,82 +226,56 @@ a {
 .context-label {
     display: block;
     margin-bottom: 5px;
-
     color: var(--text-secondary);
-
     font-size: 11px;
     font-weight: 600;
 }
 
 .context-item strong {
     display: block;
-
     overflow-wrap: anywhere;
-
     color: var(--navy-800);
-
     font-size: 13px;
     font-weight: 750;
 }
 
-
-/* =====================================================
-   7. FORM CARD
-   ===================================================== */
-
+/* 7. FORM CARD */
 .form-card {
     margin-top: 20px;
     padding: 28px;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-
     background: var(--surface);
-
     box-shadow: var(--shadow-card);
 }
 
-
-/* =====================================================
-   8. SECTION HEADING
-   ===================================================== */
-
+/* 8. SECTION HEADING */
 .section-heading {
     display: flex;
     align-items: flex-start;
     gap: 14px;
-
     margin-bottom: 25px;
     padding-bottom: 21px;
-
     border-bottom: 1px solid var(--border);
 }
 
 .section-icon {
     display: grid;
     place-items: center;
-
     flex: 0 0 43px;
-
     width: 43px;
     height: 43px;
-
     border: 1px solid #f0dfb7;
     border-radius: 12px;
-
     background: var(--gold-100);
-
     color: var(--navy-800);
-
     font-size: 22px;
     font-weight: 800;
 }
 
 .section-heading h2 {
     margin: 0;
-
     color: var(--navy-900);
-
     font-size: 20px;
     font-weight: 750;
     letter-spacing: -0.3px;
@@ -403,23 +284,18 @@ a {
 
 .section-heading p {
     margin: 6px 0 0;
-
     color: var(--text-secondary);
-
     font-size: 12px;
     line-height: 1.8;
 }
 
-.section-heading em {
+.section-heading em,
+.form-group label em {
     color: var(--danger);
     font-style: normal;
 }
 
-
-/* =====================================================
-   9. FORM GROUPS AND LABELS
-   ===================================================== */
-
+/* 9. FORM GROUPS */
 .form-group {
     min-width: 0;
     margin-bottom: 22px;
@@ -427,61 +303,36 @@ a {
 
 .form-group label {
     display: block;
-
     margin-bottom: 8px;
-
     color: var(--navy-900);
-
     font-size: 13px;
     font-weight: 750;
 }
 
-.form-group label em {
-    color: var(--danger);
-    font-style: normal;
-}
-
 .optional-label {
     margin-left: 6px;
-
     color: var(--text-secondary);
-
     font-size: 11px;
     font-weight: 500;
 }
 
-
-/* =====================================================
-   10. INPUTS, SELECTS AND TEXTAREA
-   ===================================================== */
-
+/* 10. INPUTS */
 .form-group > input,
 .form-group > select,
 .form-group > textarea,
 .amount-wrapper input {
     display: block;
-
     width: 100%;
     min-width: 0;
     min-height: 49px;
-
     padding: 12px 14px;
-
     border: 1px solid #d6deea;
     border-radius: var(--radius-sm);
-
     outline: none;
-
     background: #fbfcfe;
-
     color: var(--text-primary);
-
     font-size: 14px;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .form-group > textarea {
@@ -505,11 +356,8 @@ a {
 .form-group select:focus,
 .form-group textarea:focus {
     border-color: var(--gold-500);
-
     background: #ffffff;
-
-    box-shadow:
-        0 0 0 3px rgba(217, 173, 80, 0.14);
+    box-shadow: 0 0 0 3px rgba(217, 173, 80, 0.14);
 }
 
 .form-group select {
@@ -520,60 +368,39 @@ a {
     color: #64748b;
 }
 
-
-/* =====================================================
-   11. AMOUNT INPUT
-   ===================================================== */
-
+/* 11. AMOUNT INPUT */
 .amount-wrapper {
     display: flex;
     align-items: center;
-
     width: 100%;
     min-height: 49px;
-
     overflow: hidden;
-
     border: 1px solid #d6deea;
     border-radius: var(--radius-sm);
-
     background: #fbfcfe;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .amount-wrapper:focus-within {
     border-color: var(--gold-500);
     background: #ffffff;
-
-    box-shadow:
-        0 0 0 3px rgba(217, 173, 80, 0.14);
+    box-shadow: 0 0 0 3px rgba(217, 173, 80, 0.14);
 }
 
 .currency-symbol {
     flex: 0 0 auto;
-
     padding-left: 15px;
-
     color: var(--navy-800);
-
     font-size: 17px;
     font-weight: 800;
 }
 
 .amount-wrapper input {
     flex: 1;
-
     border: 0;
     border-radius: 0;
-
     background: transparent;
-
     box-shadow: none;
-
     appearance: textfield;
     -moz-appearance: textfield;
 }
@@ -590,49 +417,35 @@ a {
     -webkit-appearance: none;
 }
 
-
-/* =====================================================
-   12. FIELD HINTS
-   ===================================================== */
-
+/* 12. FIELD HINTS */
 .field-hint {
     display: block;
-
     margin-top: 7px;
-
     color: var(--text-secondary);
-
     font-size: 11px;
     line-height: 1.7;
 }
 
-
-/* =====================================================
-   13. FORM FEEDBACK
-   ===================================================== */
-
+/* 13. FORM FEEDBACK */
 .message {
     margin-top: 14px;
-
     border-radius: 10px;
-
     font-size: 13px;
     font-weight: 600;
     line-height: 1.7;
 }
 
-.message:empty {
-    display: none;
+.message:empty,
+.message[hidden] {
+    display: none !important;
 }
 
 .message:not(:empty) {
     padding: 12px 14px;
-
     border: 1px solid var(--border);
-
     background: #f5f8fc;
-
     color: var(--navy-800);
+    overflow-wrap: anywhere;
 }
 
 .message.success {
@@ -647,16 +460,11 @@ a {
     color: var(--danger);
 }
 
-
-/* =====================================================
-   14. BUTTONS
-   ===================================================== */
-
+/* 14. FORM BUTTONS */
 .button-row {
     display: flex;
     justify-content: flex-end;
     gap: 11px;
-
     margin-top: 25px;
     padding-top: 4px;
 }
@@ -666,24 +474,16 @@ a {
     align-items: center;
     justify-content: center;
     gap: 7px;
-
     min-height: 47px;
-
     padding: 11px 20px;
-
     border: 1px solid transparent;
     border-radius: 10px;
-
     font-size: 13px;
     font-weight: 750;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.button-row button:hover {
+.button-row button:hover:not(:disabled) {
     transform: translateY(-1px);
 }
 
@@ -694,27 +494,14 @@ a {
 
 .primary-btn {
     border-color: var(--gold-500) !important;
-
-    background: linear-gradient(
-        135deg,
-        var(--gold-400),
-        var(--gold-500)
-    );
-
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
     color: var(--navy-950);
-
     box-shadow: var(--shadow-button);
 }
 
-.primary-btn:hover {
-    background: linear-gradient(
-        135deg,
-        #f3d58b,
-        var(--gold-500)
-    );
-
-    box-shadow:
-        0 8px 20px rgba(13, 27, 53, 0.18);
+.primary-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #f3d58b, var(--gold-500));
+    box-shadow: 0 8px 20px rgba(13, 27, 53, 0.18);
 }
 
 .primary-btn:disabled {
@@ -725,51 +512,36 @@ a {
 
 .secondary-btn {
     border-color: #d6deea !important;
-
     background: #ffffff;
-
     color: var(--navy-800);
 }
 
-.secondary-btn:hover {
+.secondary-btn:hover:not(:disabled) {
     border-color: var(--gold-500) !important;
     background: var(--gold-100);
 }
 
-
-/* =====================================================
-   15. AUTOMATIC RECORD NOTICE
-   ===================================================== */
-
+/* 15. AUTOMATIC RECORD NOTICE */
 .system-notice {
     display: flex;
     align-items: flex-start;
     gap: 13px;
-
     margin-top: 19px;
     padding: 17px;
-
     border: 1px solid #e7d8b5;
     border-radius: 15px;
-
     background: #fffaf0;
 }
 
 .notice-icon {
     display: grid;
     place-items: center;
-
     flex: 0 0 30px;
-
     width: 30px;
     height: 30px;
-
     border-radius: 50%;
-
     background: #e8f6ec;
-
     color: var(--success);
-
     font-size: 14px;
     font-weight: 800;
 }
@@ -780,32 +552,22 @@ a {
 
 .notice-content strong {
     display: block;
-
     margin-bottom: 4px;
-
     color: var(--navy-900);
-
     font-size: 12px;
     font-weight: 800;
 }
 
 .notice-content p {
     margin: 0;
-
     color: var(--text-secondary);
-
     font-size: 11px;
     line-height: 1.8;
 }
 
-
-/* =====================================================
-   16. FOOTER
-   ===================================================== */
-
+/* 16. FOOTER */
 .page-footer {
     margin-top: 26px;
-
     text-align: center;
 }
 
@@ -815,7 +577,6 @@ a {
 
 .footer-brand {
     color: var(--navy-800);
-
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 1px;
@@ -823,29 +584,369 @@ a {
 
 .footer-tagline {
     color: var(--text-secondary);
-
     font-size: 11px;
     line-height: 1.8;
 }
 
 .footer-copyright {
     margin-top: 9px !important;
-
     color: #8491a4;
-
     font-size: 10px;
 }
 
-
 /* =====================================================
-   17. TABLET AND MOBILE
+   17. CUSTOM MODALS
+   Compatible with js/expenses.js exp-modal-* classes
    ===================================================== */
 
-@media (max-width: 600px) {
+body.exp-modal-open {
+    overflow: hidden;
+}
 
+/* Full-screen overlay */
+.exp-modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 99999 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+
+    overflow-y: auto;
+    padding: 20px;
+
+    background: rgba(5, 15, 32, 0.70);
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+
+    animation: expBackdropIn 0.22s ease both;
+}
+
+/* Main modal card */
+.exp-modal-backdrop .exp-modal {
+    position: relative !important;
+    display: block !important;
+
+    flex: 0 1 440px;
+    width: 100% !important;
+    max-width: 440px !important;
+    min-width: 0 !important;
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+
+    margin: auto !important;
+    padding: 28px 25px 24px !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    border-radius: 24px !important;
+
+    background: #ffffff !important;
+    color: var(--text-primary) !important;
+
+    box-shadow: 0 25px 90px rgba(0, 0, 0, 0.30) !important;
+
+    text-align: center !important;
+    line-height: 1.6;
+
+    animation: expModalIn 0.28s ease both;
+}
+
+/* Modal icon */
+.exp-modal-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 66px !important;
+    height: 66px !important;
+    min-height: 66px !important;
+
+    margin: 0 auto 18px !important;
+    padding: 0 !important;
+
+    border: 1px solid transparent !important;
+    border-radius: 50% !important;
+
+    font-size: 31px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+}
+
+.exp-modal-icon.success {
+    color: #15803d !important;
+    background: #dcfce7 !important;
+    border-color: #bbf7d0 !important;
+    box-shadow: 0 0 0 6px #f0fdf4;
+}
+
+.exp-modal-icon.warning {
+    color: #b45309 !important;
+    background: #fff7e6 !important;
+    border-color: #fde3a7 !important;
+    box-shadow: 0 0 0 6px #fffbeb;
+}
+
+.exp-modal-icon.error {
+    color: #b91c1c !important;
+    background: #fee2e2 !important;
+    border-color: #fecaca !important;
+    box-shadow: 0 0 0 6px #fef2f2;
+}
+
+/* Heading and description */
+.exp-modal-backdrop .exp-modal-title {
+    display: block !important;
+    margin: 0 0 9px !important;
+    padding: 0 !important;
+    color: var(--navy-900) !important;
+    font-size: 25px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    line-height: 1.35 !important;
+    overflow-wrap: anywhere;
+}
+
+.exp-modal-description {
+    display: block !important;
+    max-width: 340px;
+    margin: 0 auto 22px !important;
+    padding: 0 !important;
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 1.75 !important;
+    overflow-wrap: anywhere;
+}
+
+/* Warning panel */
+.exp-modal-warning-box {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 11px !important;
+
+    margin: 0 0 20px !important;
+    padding: 14px !important;
+
+    border: 1px solid #f3d28b !important;
+    border-radius: 13px !important;
+
+    background: #fffbeb !important;
+    color: #92400e !important;
+    text-align: left !important;
+}
+
+.exp-modal-warning-symbol {
+    display: grid !important;
+    place-items: center !important;
+    flex: 0 0 25px;
+
+    width: 25px !important;
+    height: 25px !important;
+
+    border-radius: 50% !important;
+    background: #fef3c7 !important;
+    color: #92400e !important;
+
+    font-size: 14px !important;
+    font-weight: 900 !important;
+}
+
+.exp-modal-warning-text {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #92400e !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.75 !important;
+    overflow-wrap: anywhere;
+}
+
+/* Expense ID and details */
+.exp-modal-details {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 0 19px !important;
+    padding: 0 !important;
+
+    border: 1px solid var(--border) !important;
+    border-radius: 13px !important;
+    overflow: hidden;
+
+    background: #ffffff !important;
+    text-align: left !important;
+}
+
+/* The first details box is the expense ID box. */
+.exp-modal-details:first-of-type {
+    border-color: #bfdbfe !important;
+    background: #eff6ff !important;
+}
+
+.exp-modal-detail-row {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 11px 14px !important;
+
+    border: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    text-align: left !important;
+}
+
+.exp-modal-detail-row:last-child {
+    border-bottom: 0 !important;
+}
+
+.exp-modal-detail-label {
+    display: block !important;
+    flex: 0 0 39% !important;
+    min-width: 0;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: var(--text-secondary) !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.65 !important;
+    text-align: left !important;
+    overflow-wrap: anywhere;
+}
+
+.exp-modal-detail-value {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: var(--navy-900) !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    line-height: 1.65 !important;
+    text-align: right !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+/* Modal action buttons */
+.exp-modal-backdrop .exp-modal-actions {
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    gap: 11px !important;
+
+    width: 100% !important;
+    margin: 22px 0 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+    background: transparent !important;
+}
+
+.exp-modal-backdrop .exp-modal-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+
+    margin: 0 !important;
+    padding: 12px 13px !important;
+
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+
+    font-family: inherit !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+
+    cursor: pointer !important;
+    white-space: normal !important;
+
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.exp-modal-backdrop .exp-modal-button:hover {
+    transform: translateY(-1px);
+}
+
+.exp-modal-backdrop .exp-modal-button:focus-visible {
+    outline: 3px solid rgba(217, 173, 80, 0.6) !important;
+    outline-offset: 3px !important;
+}
+
+.exp-modal-backdrop .exp-modal-button.stay {
+    border-color: #d6deea !important;
+    background: #ffffff !important;
+    color: var(--navy-800) !important;
+}
+
+.exp-modal-backdrop .exp-modal-button.stay:hover {
+    background: #f4f6fa !important;
+}
+
+.exp-modal-backdrop .exp-modal-button.discard {
+    border-color: #b91c1c !important;
+    background: #b91c1c !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.16);
+}
+
+.exp-modal-backdrop .exp-modal-button.discard:hover {
+    background: #991b1b !important;
+}
+
+.exp-modal-backdrop .exp-modal-button.done {
+    border-color: var(--gold-500) !important;
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-500)) !important;
+    color: var(--navy-950) !important;
+    box-shadow: var(--shadow-button);
+}
+
+.exp-modal-backdrop .exp-modal-button.done:hover {
+    box-shadow: 0 8px 20px rgba(13, 27, 53, 0.2);
+}
+
+/* 18. MODAL ANIMATIONS */
+@keyframes expBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes expModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 19. TABLET AND MOBILE */
+@media (max-width: 600px) {
     .page-shell {
         width: min(100% - 22px, 480px);
-
         padding-top: 18px;
         padding-bottom: 27px;
     }
@@ -857,18 +958,14 @@ a {
 
     .page-header {
         gap: 13px;
-
         padding: 22px 16px;
-
         border-radius: 18px;
     }
 
     .brand-mark {
         flex-basis: 50px;
-
         width: 50px;
         height: 50px;
-
         font-size: 27px;
     }
 
@@ -889,7 +986,6 @@ a {
     .context-card {
         margin-top: 15px;
         padding: 16px 5px;
-
         border-radius: 14px;
     }
 
@@ -908,7 +1004,6 @@ a {
     .form-card {
         margin-top: 15px;
         padding: 22px 17px;
-
         border-radius: 18px;
     }
 
@@ -920,10 +1015,8 @@ a {
 
     .section-icon {
         flex-basis: 38px;
-
         width: 38px;
         height: 38px;
-
         font-size: 19px;
     }
 
@@ -956,11 +1049,8 @@ a {
 
     .button-row button {
         flex: 1;
-
         min-width: 0;
-
         padding: 11px 9px;
-
         font-size: 12px;
     }
 
@@ -972,15 +1062,63 @@ a {
     .notice-content p {
         font-size: 10px;
     }
+
+    .exp-modal-backdrop {
+        align-items: center !important;
+        padding: 14px !important;
+    }
+
+    .exp-modal-backdrop .exp-modal {
+        flex-basis: 100%;
+        max-width: 440px !important;
+        max-height: calc(100dvh - 28px);
+        padding: 24px 17px 19px !important;
+        border-radius: 20px !important;
+    }
+
+    .exp-modal-icon {
+        width: 58px !important;
+        height: 58px !important;
+        min-height: 58px !important;
+        margin-bottom: 16px !important;
+        font-size: 27px !important;
+    }
+
+    .exp-modal-backdrop .exp-modal-title {
+        font-size: 22px !important;
+    }
+
+    .exp-modal-description {
+        font-size: 13px !important;
+    }
+
+    .exp-modal-detail-row {
+        gap: 10px !important;
+        padding: 10px 11px !important;
+    }
+
+    .exp-modal-detail-label {
+        flex-basis: 36% !important;
+        font-size: 11px !important;
+    }
+
+    .exp-modal-detail-value {
+        font-size: 12px !important;
+    }
+
+    .exp-modal-backdrop .exp-modal-actions {
+        gap: 9px !important;
+    }
+
+    .exp-modal-backdrop .exp-modal-button {
+        min-height: 46px !important;
+        padding: 11px 8px !important;
+        font-size: 12px !important;
+    }
 }
 
-
-/* =====================================================
-   18. VERY SMALL MOBILE SCREENS
-   ===================================================== */
-
+/* 20. VERY SMALL MOBILE SCREENS */
 @media (max-width: 360px) {
-
     .page-shell {
         width: calc(100% - 18px);
     }
@@ -992,10 +1130,8 @@ a {
 
     .brand-mark {
         flex-basis: 43px;
-
         width: 43px;
         height: 43px;
-
         font-size: 24px;
     }
 
@@ -1023,24 +1159,55 @@ a {
         padding: 10px 6px;
         font-size: 11px;
     }
+
+    .exp-modal-backdrop {
+        padding: 9px !important;
+    }
+
+    .exp-modal-backdrop .exp-modal {
+        padding: 22px 13px 16px !important;
+        border-radius: 17px !important;
+    }
+
+    .exp-modal-backdrop .exp-modal-title {
+        font-size: 20px !important;
+    }
+
+    .exp-modal-detail-row {
+        padding: 9px !important;
+    }
+
+    .exp-modal-detail-label {
+        flex-basis: 34% !important;
+        font-size: 10px !important;
+    }
+
+    .exp-modal-detail-value {
+        font-size: 11px !important;
+    }
+
+    .exp-modal-backdrop .exp-modal-actions {
+        flex-direction: column !important;
+    }
+
+    .exp-modal-backdrop .exp-modal-button {
+        width: 100% !important;
+        flex: 1 1 auto !important;
+    }
 }
 
-
-/* =====================================================
-   19. ACCESSIBILITY
-   ===================================================== */
-
+/* 21. ACCESSIBILITY */
 :focus-visible {
     scroll-margin-block: 20px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     *,
     *::before,
     *::after {
         scroll-behavior: auto !important;
         animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
 }
