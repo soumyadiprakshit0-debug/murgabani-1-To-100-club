@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#123b2a">
+
+<title>Club Fund | MURGABANI 1 TO 100 CLUB</title>
+
+<link rel="stylesheet" href="club-fund.css">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-inner">
+
+        <img
+            src="logo.png"
+            alt="MURGABANI 1 TO 100 CLUB"
+            class="club-logo"
+            onerror="this.style.display='none'"
+        >
+
+        <h1 class="brand-title">
+            MURGABANI 1 TO 100 CLUB
+        </h1>
+
+    </div>
+</header>
+
+<main class="container">
+
+    <h2 class="page-title">Club Fund Management</h2>
+<!-- FUND SUMMARY -->
+
+    <section class="summary-grid">
+
+        <div class="balance-card">
+            <div class="card-label">Available Club Fund</div>
+            <div class="balance-amount" id="availableBalance">₹0.00</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="card-label">Total Deposits</div>
+            <div class="summary-amount deposit-color" id="totalDeposits">
+                ₹0.00
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="card-label">Total Withdrawals</div>
+            <div class="summary-amount withdraw-color" id="totalWithdrawals">
+                ₹0.00
+            </div>
+        </div>
+
+    </section>
+
+    <div class="actions">
+        <button class="btn btn-primary" id="openDeposit">
+            ＋ Deposit
+        </button>
+
+        <button class="btn btn-danger" id="openWithdrawal">
+            ↗ Withdrawal
+        </button>
+    </div>
+
+    <!-- DEPOSIT HISTORY -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <h2>Deposit History</h2>
+
+            <div class="panel-tools">
+                <input
+                    type="search"
+                    id="depositSearch"
+                    placeholder="Search..."
+                    aria-label="Search deposits"
+                >
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Received From</th>
+                        <th>Amount</th>
+                        <th>Remarks</th>
+                        <th>Recorded By</th>
+                    </tr>
+                </thead>
+
+                <tbody id="depositRows"></tbody>
+            </table>
+        </div>
+
+    </section>
+
+    <!-- WITHDRAWAL HISTORY -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <h2>Withdrawal History</h2>
+
+            <div class="panel-tools">
+                <input
+                    type="search"
+                    id="withdrawalSearch"
+                    placeholder="Search..."
+                    aria-label="Search withdrawals"
+                >
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date &amp; Time</th>
+                        <th>Purpose</th>
+                      <th>Amount</th>
+                        <th>Paid To</th>
+            
+                        <th>Recorded By</th>
+                    </tr>
+                </thead>
+
+                <tbody id="withdrawalRows"></tbody>
+            </table>
+        </div>
+
+    </section>
+
+    <!-- NOTEPAD -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <h2>Club Fund Notepad</h2>
+        </div>
+
+        <div class="note-info">
+            Notes are informational only and never affect the available balance.
+        </div>
+
+        <form class="note-form" id="noteForm">
+
+            <div class="field">
+                <label for="noteDate">Date *</label>
+                <input type="date" id="noteDate" required>
+            </div>
+
+            <div class="field">
+                <label for="noteDirection">Money Direction *</label>
+
+                <select id="noteDirection" required>
+                    <option value="club_gives">Club gives money</option>
+                    <option value="club_receives">Club receives money</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="notePerson">Person / Organisation *</label>
+
+                <input
+                    type="text"
+                    id="notePerson"
+                    maxlength="150"
+                    placeholder="Enter name"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="noteAmount">Amount (₹) *</label>
+
+                <input
+                    type="number"
+                    id="noteAmount"
+                    min="0"
+                    step="1"
+                    placeholder="1000"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="noteRemark">Remark</label>
+
+                <input
+                    type="text"
+                    id="noteRemark"
+                    maxlength="250"
+                    placeholder="Advance / Loan"
+                >
+            </div>
+
+            <button class="btn btn-primary" id="saveNoteBtn" type="submit">
+                ＋ Add Note
+            </button>
+
+            <div class="field note-preview-field">
+                <label>Financial Note Preview</label>
+
+                <div class="direction-preview" id="notePreview">
+                    Club → Person
+                </div>
+            </div>
+
+        </form>
+
+        <div id="noteMessage" class="message" role="status"></div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Financial Note</th>
+                        <th>Amount</th>
+                        <th>Remark</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="noteRows"></tbody>
+            </table>
+        </div>
+
+    </section>
+
+</main>
+
+<!-- DEPOSIT / WITHDRAWAL MODAL -->
+
+<div class="modal-backdrop" id="transactionModal">
+
+    <form class="modal" id="transactionForm">
+
+        <div class="modal-header">
+            <h3 id="modalTitle">Deposit</h3>
+
+            <button
+                type="button"
+                class="close-btn"
+                id="closeModal"
+                aria-label="Close"
+            >×</button>
+        </div>
+
+        <div class="modal-body">
+
+            <div id="transactionMessage" class="message" role="alert"></div>
+
+            <div class="field">
+                <label id="personLabel" for="personName">
+                    Received From *
+                </label>
+
+                <input
+                    type="text"
+                    id="personName"
+                    maxlength="150"
+                    placeholder="Enter name"
+                    required
+                >
+            </div>
+
+            <div class="field" id="purposeField" hidden>
+                <label for="transactionPurpose">Purpose *</label>
+
+                <input
+                    type="text"
+                    id="transactionPurpose"
+                    maxlength="250"
+                    placeholder="Enter withdrawal purpose"
+                >
+            </div>
+
+            <div class="field">
+                <label for="transactionAmount">Amount (₹) *</label>
+
+                <input
+                    type="number"
+                    id="transactionAmount"
+                    min="1"
+                    step="1"
+                    placeholder="Enter amount"
+                    required
+                >
+            </div>
+
+            <div class="field" id="depositRemarksField">
+                <label for="transactionDetail">Remarks</label>
+
+                <textarea
+                    id="transactionDetail"
+                    rows="2"
+                    maxlength="500"
+                    placeholder="Optional remarks"
+                ></textarea>
+            </div>
+
+            <div class="field">
+                <label for="recordedBy">Recorded By</label>
+
+                <input
+                    type="text"
+                    id="recordedBy"
+                    class="readonly-field"
+                    readonly
+                >
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button type="button" class="btn btn-light" id="cancelModal">
+                Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary" id="saveTransaction">
+                Save
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- CONFIRMATION MODAL -->
+
+<div class="modal-backdrop" id="confirmModal">
+
+    <div class="modal" role="alertdialog" aria-modal="true">
+
+        <div class="modal-header">
+            <h3 id="confirmTitle">Confirm Action</h3>
+
+            <button
+                type="button"
+                class="close-btn"
+                id="closeConfirm"
+                aria-label="Close"
+            >×</button>
+        </div>
+
+        <div class="modal-body">
+            <p id="confirmText"></p>
+        </div>
+
+        <div class="modal-footer">
+
+            <button type="button" class="btn btn-light" id="cancelConfirm">
+                Cancel
+            </button>
+
+            <button type="button" class="btn btn-danger" id="acceptConfirm">
+                Confirm
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="club-fund.js" defer></script>
+
+</body>
+</html>
