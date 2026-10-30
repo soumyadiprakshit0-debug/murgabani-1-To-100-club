@@ -585,25 +585,24 @@
         <tr>
 
           <td>
-            ${escapeHTML(dateTime(item.date))}
-          </td>
+    ${escapeHTML(dateTime(item.date))}
+</td>
 
-          <td>
-            ${escapeHTML(item.purpose || "—")}
-          </td>
+<td>
+    ${escapeHTML(item.purpose || "—")}
+</td>
 
-          <td>
-            ${escapeHTML(item.person || "—")}
-          </td>
+<td class="amount withdraw-color">
+    ${escapeHTML(money(item.amount))}
+</td>
 
-          <td class="amount withdraw-color">
-            ${escapeHTML(money(item.amount))}
-          </td>
+<td>
+    ${escapeHTML(item.person || "—")}
+</td>
 
-          <td>
-            ${escapeHTML(item.recordedBy || "—")}
-          </td>
-
+<td>
+    ${escapeHTML(item.recordedBy || "—")}
+</td>
         </tr>
 
       `).join("")
@@ -929,177 +928,121 @@
   // SAVE TRANSACTION
   // =====================================================
 
-  async function submitTransaction(data) {
+  
+async function submitTransaction(data) {
 
     if (S.busy) return;
 
     busy(true);
 
+    const isDeposit = data.type === "deposit";
+    const transactionButton = $("saveTransaction");
+
+    const originalButtonText = transactionButton.textContent;
 
     try {
 
-      // -----------------------------------------------
-      // PREVIEW MODE - TEMPORARY DATA
-      // -----------------------------------------------
+        // =========================================
+        // LOCAL PREVIEW MODE
+        // =========================================
 
-      if (S.previewMode) {
+        if (S.previewMode) {
 
-        const record = {
+            if (!isDeposit && data.amount > previewSummary().balance) {
+                throw new Error(
+                    `Insufficient balance. Available fund: ${money(previewSummary().balance)}.`
+                );
+            }
 
-          id: `PREVIEW-${Date.now()}`,
+            const record = {
+                id: `PREVIEW-${Date.now()}`,
+                date: previewDate(),
+                person: data.person,
+                amount: data.amount,
+                purpose: data.purpose || "",
+                remarks: data.remarks || "",
+                recordedBy: "Preview Mode"
+            };
 
-          date: previewDate(),
+            if (isDeposit) {
+                S.previewData.deposits.push(record);
+            } else {
+                S.previewData.withdrawals.push(record);
+            }
 
-          person: data.person,
+        }
 
-          amount: data.amount,
+        // =========================================
+        // LIVE WEBSITE - SINGLE API REQUEST
+        // =========================================
 
-          purpose: data.purpose || "",
+        else {
 
-          remarks: data.remarks || "",
+            await api(
+                isDeposit
+                    ? "clubFundSaveDeposit"
+                    : "clubFundSaveWithdrawal",
 
-          recordedBy: "Preview Mode"
+                {
+                    ...(isDeposit
+                        ? {
+                            receivedFrom: data.person,
+                            remarks: data.remarks
+                        }
+                        : {
+                            paidTo: data.person,
+                            purpose: data.purpose
+                        }
+                    ),
 
-        };
-
-
-        if (data.type === "deposit") {
-
-          S.previewData.deposits.push(record);
-
-        } else {
-
-          const currentBalance =
-            previewSummary().balance;
-
-          if (data.amount > currentBalance) {
-
-            throw new Error(
-
-              `Insufficient balance. Available fund: ${money(currentBalance)}.`
-
+                    amount: data.amount,
+                    requestId: requestId()
+                }
             );
 
-          }
-
-          S.previewData.withdrawals.push(record);
-
         }
 
+        // =========================================
+        // SUCCESS
+        // =========================================
+
+        $("confirmModal").classList.remove("open");
+        $("transactionModal").classList.remove("open");
+
+        S.pending = null;
 
         toast(
-
-          data.type === "deposit"
-
-            ? "Preview deposit added."
-
-            : "Preview withdrawal added.",
-
-          "info"
-
+            S.previewMode
+                ? (isDeposit
+                    ? "Preview deposit added."
+                    : "Preview withdrawal added.")
+                : (isDeposit
+                    ? "Deposit saved successfully."
+                    : "Withdrawal saved successfully.")
         );
-
-      }
-
-
-      // -----------------------------------------------
-      // LIVE WEBSITE - GOOGLE SHEETS
-      // -----------------------------------------------
-
-      else {
-
-        if (data.type === "withdrawal") {
-
-          const latest = await api("clubFundGetData");
-
-const balance = Number(
-    latest.summary?.availableBalance ??
-    latest.summary?.balance ??
-    0
-);
-
-          if (data.amount > balance) {
-
-            throw new Error(
-
-              `Insufficient balance. Available fund: ${money(balance)}.`
-
-            );
-
-          }
-
-        }
-
-
-        if (data.type === "deposit") {
-
-          await api("clubFundSaveDeposit", {
-
-            receivedFrom: data.person,
-
-            amount: data.amount,
-
-            remarks: data.remarks,
-
-            requestId: requestId()
-
-          });
-
-        } else {
-
-          await api("clubFundSaveWithdrawal", {
-
-            paidTo: data.person,
-
-            purpose: data.purpose,
-
-            amount: data.amount,
-
-            requestId: requestId()
-
-          });
-
-        }
-
-
-        toast(
-
-          data.type === "deposit"
-
-            ? "Deposit saved successfully."
-
-            : "Withdrawal saved successfully."
-
-        );
-
-      }
-
-
-      $("confirmModal").classList.remove("open");
-
-      S.pending = null;
-
-      $("transactionModal").classList.remove("open");
-
 
     } catch (error) {
 
-      $("confirmModal").classList.remove("open");
+        $("confirmModal").classList.remove("open");
+        S.pending = null;
 
-      S.pending = null;
-
-      message("transactionMessage", error.message);
+        message(
+            "transactionMessage",
+            error.message || "Transaction could not be completed."
+        );
 
     } finally {
 
-      busy(false);
+        busy(false);
+
+        transactionButton.textContent = originalButtonText;
 
     }
 
-
+    // Refresh balance and transaction history
     await load();
 
-  }
+}
 
 
   // =====================================================
