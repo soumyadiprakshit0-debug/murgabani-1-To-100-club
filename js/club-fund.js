@@ -21,6 +21,7 @@
   const S = {
 
     collectorId: "",
+    token: "",
     name: "",
     role: "",
 
@@ -244,7 +245,6 @@
 
         : type === "info"
           ? "#285d8d"
-
           : "#17452f";
 
     clearTimeout(S.toastTimer);
@@ -323,6 +323,14 @@
 
   async function api(action, data = {}) {
 
+    if (!S.token) {
+
+      throw new Error(
+        "Your Club Fund session has expired. Please log in again."
+      );
+
+    }
+
     const response = await fetch(API_URL, {
 
       method: "POST",
@@ -337,7 +345,7 @@
 
         action,
 
-        collectorId: S.collectorId,
+        token: S.token,
 
         ...data
 
@@ -572,41 +580,51 @@
 
     $("withdrawalRows").innerHTML = rows.length
 
-    ? rows.map(item => `
+      ? rows.map(item => `
+
         <tr>
-            <td>
-                ${escapeHTML(dateTime(item.date))}
-            </td>
 
-            <td>
-                ${escapeHTML(item.purpose || "—")}
-            </td>
+          <td>
+            ${escapeHTML(dateTime(item.date))}
+          </td>
 
-            <td class="amount withdraw-color">
-                ${escapeHTML(money(item.amount))}
-            </td>
+          <td>
+            ${escapeHTML(item.purpose || "—")}
+          </td>
 
-            <td>
-                ${escapeHTML(item.person || "—")}
-            </td>
+          <td>
+            ${escapeHTML(item.person || "—")}
+          </td>
 
-            <td>
-                ${escapeHTML(item.recordedBy || "—")}
-            </td>
+          <td class="amount withdraw-color">
+            ${escapeHTML(money(item.amount))}
+          </td>
+
+          <td>
+            ${escapeHTML(item.recordedBy || "—")}
+          </td>
+
         </tr>
-    `).join("")
 
-    : `
+      `).join("")
+
+      : `
+
         <tr>
-            <td colspan="5" class="empty-row">
-                ${
-                    query
-                        ? "No matching transactions found."
-                        : "No transactions recorded yet."
-                }
-            </td>
+
+          <td colspan="5" class="empty-row">
+
+            ${
+              query
+                ? "No matching transactions found."
+                : "No transactions recorded yet."
+            }
+
+          </td>
+
         </tr>
-    `;
+
+      `;
 
   }
 
@@ -712,9 +730,7 @@
       `;
 
   }
-
-
-  // =====================================================
+    // =====================================================
   // LOAD DATA
   // =====================================================
 
@@ -839,15 +855,16 @@
 
 
     // Deposit: hide Purpose, show Remarks
-// Withdrawal: show Purpose, hide Remarks
+    // Withdrawal: show Purpose, hide Remarks
 
-$("purposeField").hidden = isDeposit;
-$("purposeField").style.display = isDeposit ? "none" : "flex";
+    $("purposeField").hidden = isDeposit;
+    $("purposeField").style.display = isDeposit ? "none" : "flex";
 
-$("depositRemarksField").hidden = !isDeposit;
-$("depositRemarksField").style.display = isDeposit ? "flex" : "none";
+    $("depositRemarksField").hidden = !isDeposit;
+    $("depositRemarksField").style.display = isDeposit ? "flex" : "none";
 
     $("transactionPurpose").required = !isDeposit;
+
 
     $("recordedBy").value = S.previewMode
       ? "Preview Mode"
@@ -1328,8 +1345,7 @@ $("depositRemarksField").style.display = isDeposit ? "flex" : "none";
 
   }
 
-
-  // =====================================================
+   // =====================================================
   // DELETE NOTEPAD
   // =====================================================
 
@@ -1439,6 +1455,15 @@ $("depositRemarksField").style.display = isDeposit ? "flex" : "none";
       "memberId",
       "collectorId",
       "userId"
+
+    ]);
+
+
+    // READ CLUB FUND AUTHENTICATION TOKEN
+
+    S.token = sessionValue([
+
+      "clubFundToken"
 
     ]);
 
@@ -1639,7 +1664,9 @@ $("depositRemarksField").style.display = isDeposit ? "flex" : "none";
     // LIVE WEBSITE LOGIN PROTECTION
     // =================================================
 
-    if (!S.collectorId) {
+    if (!S.collectorId || !S.token) {
+
+      sessionStorage.removeItem("clubFundToken");
 
       location.replace("index.html");
 
@@ -1993,9 +2020,7 @@ $("depositRemarksField").style.display = isDeposit ? "flex" : "none";
     }
 
   }
-
-
-  // =====================================================
+    // =====================================================
   // MODAL EVENT HANDLERS
   // =====================================================
 
