@@ -81,20 +81,36 @@ sessionStorage.setItem("memberRole", result.role);
 // SAVE CLUB FUND AUTHENTICATION TOKEN
 // =================================
 
-if (result.clubFundToken) {
+// =================================
+// SAVE CLUB FUND AUTHENTICATION TOKEN
+// =================================
 
-    sessionStorage.setItem(
-        "clubFundToken",
-        result.clubFundToken
+if (!result.clubFundToken) {
+
+    showLoading(false);
+
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Login";
+
+    showLoginModal(
+        "⚠️",
+        "Authentication Error",
+        "The server did not provide a Club Fund security token.\n\nPlease contact the administrator."
     );
-
-} else {
 
     console.error(
-        "Club Fund authentication token was not received."
+        "Club Fund token missing from login response:",
+        result
     );
 
+    return;
+
 }
+
+sessionStorage.setItem(
+    "clubFundToken",
+    result.clubFundToken
+);
     
     showLoading(false);
 
