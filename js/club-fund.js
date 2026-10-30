@@ -838,9 +838,14 @@
         : "Enter recipient's name";
 
 
-    $("purposeField").hidden = isDeposit;
+    // Deposit: hide Purpose, show Remarks
+// Withdrawal: show Purpose, hide Remarks
 
-    $("depositRemarksField").hidden = !isDeposit;
+$("purposeField").hidden = isDeposit;
+$("purposeField").style.display = isDeposit ? "none" : "flex";
+
+$("depositRemarksField").hidden = !isDeposit;
+$("depositRemarksField").style.display = isDeposit ? "flex" : "none";
 
     $("transactionPurpose").required = !isDeposit;
 
