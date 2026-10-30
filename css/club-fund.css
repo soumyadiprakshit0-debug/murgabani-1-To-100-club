@@ -1,0 +1,750 @@
+:root {
+    --green: #17452f;
+    --dark-green: #102d20;
+    --light-green: #eaf3ed;
+    --gold: #d4b36b;
+    --background: #f5f7f5;
+    --white: #ffffff;
+    --text: #202a23;
+    --muted: #6b766e;
+    --border: #e1e8e2;
+    --success: #237347;
+    --danger: #b42318;
+    --shadow: 0 3px 14px rgba(20, 55, 35, .05);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+button, input, select, textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+/* HEADER */
+
+.header {
+    background: linear-gradient(120deg, var(--dark-green), var(--green));
+    color: white;
+    border-bottom: 3px solid var(--gold);
+    padding: 17px 16px;
+}
+
+.header-inner {
+    max-width: 1150px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 55px;
+    padding: 0 65px;
+}
+
+.club-logo {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.brand-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 750;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+/* PAGE */
+
+.container {
+    max-width: 1150px;
+    margin: 24px auto;
+    padding: 0 16px 35px;
+}
+
+.page-title {
+    margin: 0 0 20px;
+    color: var(--green);
+    font-size: 25px;
+}
+
+/* TESTING NOTICE */
+
+.demo-warning {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    background: #fff7e6;
+    border: 1px solid #ecd9a6;
+    border-radius: 9px;
+    color: #745519;
+    font-size: 12px;
+}
+
+/* FUND SUMMARY */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 14px;
+}
+
+.balance-card,
+.summary-card,
+.panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.balance-card {
+    padding: 22px;
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+}
+
+.summary-card {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+}
+
+.card-label {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.balance-card .card-label {
+    color: #e1e9e3;
+}
+
+.balance-amount {
+    margin: 7px 0;
+    font-size: clamp(27px, 4vw, 36px);
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.summary-amount {
+    font-size: 24px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.deposit-color {
+    color: var(--success);
+}
+
+.withdraw-color {
+    color: var(--danger);
+}
+
+/* BUTTONS */
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 19px 0 23px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 15px;
+    border: 0;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.btn-primary {
+    background: var(--green);
+    color: white;
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-light {
+    background: var(--light-green);
+    color: var(--green);
+    border: 1px solid var(--border);
+}
+
+.btn:hover {
+    opacity: .9;
+}
+
+/* PANELS */
+
+.panel {
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.panel-header h2 {
+    margin: 0;
+    color: var(--green);
+    font-size: 17px;
+}
+
+.panel-tools {
+    display: flex;
+    gap: 8px;
+}
+
+input, select, textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 11px;
+    color: var(--text);
+    background: white;
+    border: 1px solid #d6e0d8;
+    border-radius: 8px;
+}
+
+.panel-tools input,
+.panel-tools select {
+    width: auto;
+    min-width: 140px;
+}
+
+/* TABLES */
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #edf1ed;
+    font-size: 13px;
+}
+
+th {
+    color: #526057;
+    background: #f7faf7;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+tbody tr:hover {
+    background: #fafcfb;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.empty-row {
+    padding: 26px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.amount {
+    white-space: nowrap;
+    font-weight: 750;
+}
+
+.note-direction {
+    color: var(--green);
+    font-weight: 700;
+}
+
+/* NOTEPAD */
+
+.note-info {
+    padding: 11px 18px;
+    background: #f8faf8;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.note-form {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1.2fr .8fr 1.1fr auto;
+    gap: 10px;
+    align-items: end;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.field label {
+    color: #526057;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.direction-preview {
+    min-height: 40px;
+    padding: 9px 10px;
+    overflow-wrap: anywhere;
+    border-radius: 8px;
+    background: var(--light-green);
+    color: var(--green);
+    font-weight: 700;
+}
+
+.note-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.small-btn {
+    padding: 6px 9px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.delete-btn {
+    color: var(--danger);
+}
+
+.note-preview-field {
+    grid-column: 1 / -1;
+}
+
+/* MESSAGES */
+
+.message {
+    display: none;
+    margin: 14px 18px;
+    padding: 11px 13px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.message.show {
+    display: block;
+}
+
+.message.success {
+    color: #21643a;
+    background: #eaf7ee;
+    border: 1px solid #c6e7d0;
+}
+
+.message.error {
+    color: #a12620;
+    background: #fff0ef;
+    border: 1px solid #f0c7c4;
+}
+
+.message.info {
+    color: #285d8d;
+    background: #eef5fc;
+    border: 1px solid #cfdfef;
+}
+
+/* MODALS */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(10, 25, 16, .62);
+}
+
+.modal-backdrop.open {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+    max-width: 460px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 15px 50px #0002;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 19px;
+    color: white;
+    background: var(--green);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.close-btn {
+    padding: 0;
+    color: white;
+    background: transparent;
+    border: 0;
+    font-size: 25px;
+}
+
+.modal-body {
+    display: grid;
+    gap: 14px;
+    padding: 19px;
+}
+
+.modal-body .message {
+    margin: 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 19px 19px;
+}
+
+.readonly-field {
+    background: #f3f6f3;
+}
+
+.toast {
+    position: fixed;
+    z-index: 200;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100% - 30px);
+    padding: 12px 16px;
+    color: white;
+    background: var(--green);
+    border-radius: 8px;
+    box-shadow: 0 5px 20px #0002;
+    display: none;
+    font-size: 13px;
+}
+
+.toast.show {
+    display: block;
+}
+
+@media (max-width: 850px) {
+    .summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .balance-card {
+        grid-column: 1 / -1;
+    }
+
+    .note-form {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .header {
+        padding: 14px 12px;
+    }
+
+   .header-inner {
+    min-height: 46px;
+    padding: 0 0 0 52px;
+    justify-content: center;
+}
+
+.club-logo {
+    width: 56px;
+    height: 56px;
+}
+
+.brand-title {
+    font-size: clamp(22px, 3.8vw, 16px);
+    white-space: nowrap;
+    text-align: center;
+    letter-spacing: -0.3px;
+}
+
+    .container {
+        margin-top: 18px;
+        padding: 0 12px 28px;
+    }
+
+    .page-title {
+        font-size: 22px;
+    }
+
+    .summary-grid {
+        gap: 9px;
+    }
+
+    .balance-card,
+    .summary-card {
+        padding: 14px;
+    }
+
+    .summary-amount {
+        font-size: 19px;
+    }
+
+    .actions .btn {
+        flex: 1;
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    .panel-header {
+        padding: 13px;
+    }
+
+    .panel-tools {
+        width: 100%;
+    }
+
+    .panel-tools input,
+    .panel-tools select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .note-form {
+        grid-template-columns: 1fr;
+        padding: 14px;
+    }
+}
+
+
+/* ==========================================
+   1. CENTER AVAILABLE CLUB FUND BALANCE
+========================================== */
+
+.balance-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.balance-card .card-label {
+    text-align: center;
+}
+
+.balance-card .balance-amount {
+    text-align: center;
+    width: 100%;
+}
+
+
+/* ==========================================
+   2. WIDER DEPOSIT & WITHDRAWAL BUTTONS
+========================================== */
+
+.actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+.actions .btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 68px;
+    padding: 18px 12px;
+    font-size: 18px;
+    border-radius: 13px;
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   3. MOBILE RESPONSIVENESS
+========================================== */
+
+@media (max-width: 480px) {
+
+    .actions {
+        gap: 10px;
+    }
+
+    .actions .btn {
+        min-height: 66px;
+        padding: 14px 8px;
+        font-size: 16px;
+    }
+
+}
+
+/* Larger Available Club Fund Balance */
+
+.balance-card .balance-amount {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    width: 100%;
+}
+
+/* Mobile screens */
+@media (max-width: 480px) {
+    .balance-card .balance-amount {
+        font-size: 54px;
+    }
+}
+
+/* Larger Available Club Fund Label */
+
+.balance-card .card-label {
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Mobile adjustment */
+@media (max-width: 480px) {
+    .balance-card .card-label {
+        font-size: 20px;
+    }
+}
+
+
+/* ==========================================
+   PREMIUM FLOATING NOTIFICATIONS
+========================================== */
+
+.toast {
+    position: fixed !important;
+
+    left: 50% !important;
+    bottom: 35px !important;
+
+    transform: translate(-50%, 25px) !important;
+
+    width: max-content;
+    max-width: calc(100% - 36px);
+
+    padding: 19px 28px !important;
+
+    border-radius: 16px !important;
+
+    background: #17452f;
+
+    color: #ffffff !important;
+
+    font-size: 19px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.5;
+
+    text-align: center;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.22);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    z-index: 99999 !important;
+
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease,
+        visibility 0.3s ease;
+
+    pointer-events: none;
+}
+
+
+/* Visible notification */
+
+.toast.show {
+    opacity: 1;
+
+    visibility: visible;
+
+    transform: translate(-50%, 0) !important;
+}
+
+
+/* Mobile adjustment */
+
+@media (max-width: 480px) {
+
+    .toast {
+        bottom: 28px !important;
+
+        max-width: calc(100% - 30px);
+
+        padding: 17px 22px !important;
+
+        font-size: 17px !important;
+
+        border-radius: 14px !important;
+    }
+
+}
