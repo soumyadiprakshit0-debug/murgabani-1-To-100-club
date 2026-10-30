@@ -763,3 +763,102 @@ tbody tr:last-child td {
 #transactionModal .modal-body > .field[hidden] {
     display: none !important;
 }
+
+
+
+
+/* ==========================================
+   PREMIUM CLUB FUND LOADING OVERLAY
+========================================== */
+
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(10, 30, 19, 0.72);
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s ease, visibility .25s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-card {
+    width: 100%;
+    max-width: 330px;
+    padding: 30px 25px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e1e8e2;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    transform: translateY(12px) scale(.97);
+    transition: transform .25s ease;
+}
+
+.loading-overlay.active .loading-card {
+    transform: translateY(0) scale(1);
+}
+
+.loading-spinner {
+    width: 55px;
+    height: 55px;
+    margin: 0 auto 20px;
+    border: 5px solid #e5eee7;
+    border-top-color: #17452f;
+    border-right-color: #d4b36b;
+    border-radius: 50%;
+    animation: clubFundSpin .8s linear infinite;
+}
+
+@keyframes clubFundSpin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-title {
+    margin: 0 0 7px;
+    color: #17452f;
+    font-size: 19px;
+    font-weight: 750;
+}
+
+.loading-description {
+    margin: 0 0 22px;
+    color: #6b766e;
+    font-size: 13px;
+}
+
+.loading-progress {
+    height: 5px;
+    overflow: hidden;
+    background: #eaf3ed;
+    border-radius: 20px;
+}
+
+.loading-progress-bar {
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(90deg, #17452f, #d4b36b);
+    border-radius: inherit;
+    animation: clubFundProgress 1.4s ease-in-out infinite;
+}
+
+@keyframes clubFundProgress {
+    0%   { transform: translateX(-110%); }
+    100% { transform: translateX(310%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loading-spinner,
+    .loading-progress-bar {
+        animation-duration: 2.5s;
+    }
+}
