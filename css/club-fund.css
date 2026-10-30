@@ -939,7 +939,7 @@ tbody tr:last-child td {
 
 .dashboard-loader-content > p:not(.dashboard-loader-subtitle) {
     color: #d8e5dc;
-    font-size: 13px;
+    font-size: 16px;
 }
 
 .dashboard-loader-progress {
