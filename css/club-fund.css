@@ -753,3 +753,13 @@ tbody tr:last-child td {
 .field[hidden] {
     display: none !important;
 }
+
+
+/* =====================================
+   FIX CONDITIONAL DEPOSIT/WITHDRAWAL FIELDS
+   Works on Desktop, Tablet & Mobile
+===================================== */
+
+#transactionModal .modal-body > .field[hidden] {
+    display: none !important;
+}
