@@ -65,6 +65,38 @@ sessionStorage.setItem("memberName", result.name);
 sessionStorage.setItem("memberRole", result.role);  */
 
 // =================================
+// VERIFY CLUB FUND AUTHENTICATION TOKEN
+// =================================
+
+if (!result.clubFundToken) {
+
+    // Clear any partially saved login session
+    sessionStorage.removeItem("loggedIn");
+    sessionStorage.removeItem("memberId");
+    sessionStorage.removeItem("memberName");
+    sessionStorage.removeItem("memberRole");
+    sessionStorage.removeItem("clubFundToken");
+
+    showLoading(false);
+
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Login";
+
+    showLoginModal(
+        "⚠️",
+        "Authentication Error",
+        "The server did not provide a Club Fund security token.\n\nPlease contact the administrator."
+    );
+
+    console.error(
+        "Club Fund authentication token missing from login response."
+    );
+
+    return;
+}
+
+
+// =================================
 // SAVE LOGIN SESSION
 // =================================
 
@@ -80,32 +112,6 @@ sessionStorage.setItem("memberRole", result.role);
 // =================================
 // SAVE CLUB FUND AUTHENTICATION TOKEN
 // =================================
-
-// =================================
-// SAVE CLUB FUND AUTHENTICATION TOKEN
-// =================================
-
-if (!result.clubFundToken) {
-
-    showLoading(false);
-
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Login";
-
-    showLoginModal(
-        "⚠️",
-        "Authentication Error",
-        "The server did not provide a Club Fund security token.\n\nPlease contact the administrator."
-    );
-
-    console.error(
-        "Club Fund token missing from login response:",
-        result
-    );
-
-    return;
-
-}
 
 sessionStorage.setItem(
     "clubFundToken",
