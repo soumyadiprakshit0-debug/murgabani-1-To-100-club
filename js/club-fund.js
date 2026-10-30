@@ -292,29 +292,36 @@
   // BUTTON LOADING STATE
   // =====================================================
 
-  function busy(value) {
+  function busy(value, title = "Please wait", description = "Processing your request securely...") {
 
     S.busy = value;
 
     [
-
-      "openDeposit",
-      "openWithdrawal",
-      "saveNoteBtn",
-      "saveTransaction",
-      "acceptConfirm"
-
+        "openDeposit",
+        "openWithdrawal",
+        "saveNoteBtn",
+        "saveTransaction",
+        "acceptConfirm"
     ].forEach(id => {
-
-      if ($(id)) {
-
-        $(id).disabled = value;
-
-      }
-
+        if ($(id)) $(id).disabled = value;
     });
 
-  }
+    const overlay = $("loadingOverlay");
+
+    if (!overlay) return;
+
+    if (value) {
+        $("loadingTitle").textContent = title;
+        $("loadingDescription").textContent = description;
+
+        overlay.classList.add("active");
+        overlay.setAttribute("aria-hidden", "false");
+
+    } else {
+        overlay.classList.remove("active");
+        overlay.setAttribute("aria-hidden", "true");
+    }
+}
 
 
   // =====================================================
@@ -933,7 +940,11 @@ async function submitTransaction(data) {
 
     if (S.busy) return;
 
-    busy(true);
+    busy(
+    true,
+    data.type === "deposit" ? "Processing Deposit" : "Processing Withdrawal",
+    "Please wait while your transaction is securely saved."
+);
 
     const isDeposit = data.type === "deposit";
     const transactionButton = $("saveTransaction");
