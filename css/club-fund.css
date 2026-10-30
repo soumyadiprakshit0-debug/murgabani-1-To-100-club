@@ -748,3 +748,8 @@ tbody tr:last-child td {
     }
 
 }
+
+/* FIX: Hide Deposit/Withdrawal conditional fields */
+.field[hidden] {
+    display: none !important;
+}
