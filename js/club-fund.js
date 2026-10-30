@@ -9,7 +9,7 @@
   const API_URL =
     "https://script.google.com/macros/s/AKfycbxVNrYgPMqWGibcTQyFth5aPYwJmP4cbeW29sUZaAUjeBtD3Ap_T6ztRBqO_eYAqW1D/exec";
 
-  const REFRESH_MS = 30000;
+  const REFRESH_MS = 60000;
 
   const $ = id => document.getElementById(id);
 
@@ -1012,11 +1012,11 @@
 
           const latest = await api("clubFundGetData");
 
-          const balance = Number(
-
-            latest.summary?.balance ?? 0
-
-          );
+const balance = Number(
+    latest.summary?.availableBalance ??
+    latest.summary?.balance ??
+    0
+);
 
           if (data.amount > balance) {
 
