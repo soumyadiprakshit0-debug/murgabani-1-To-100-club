@@ -58,11 +58,44 @@ loginBtn.textContent = "Logging in...";
 
 if (result.success) {         
 
-    // Save login session
-    sessionStorage.setItem("loggedIn", "true");
+    // Save login session (replacement below by it)
+/*    sessionStorage.setItem("loggedIn", "true");
 sessionStorage.setItem("memberId", result.memberId);
 sessionStorage.setItem("memberName", result.name);
+sessionStorage.setItem("memberRole", result.role);  */
+
+// =================================
+// SAVE LOGIN SESSION
+// =================================
+
+sessionStorage.setItem("loggedIn", "true");
+
+sessionStorage.setItem("memberId", result.memberId);
+
+sessionStorage.setItem("memberName", result.name);
+
 sessionStorage.setItem("memberRole", result.role);
+
+
+// =================================
+// SAVE CLUB FUND AUTHENTICATION TOKEN
+// =================================
+
+if (result.clubFundToken) {
+
+    sessionStorage.setItem(
+        "clubFundToken",
+        result.clubFundToken
+    );
+
+} else {
+
+    console.error(
+        "Club Fund authentication token was not received."
+    );
+
+}
+    
     showLoading(false);
 
   if (result.mustChangePassword) {
