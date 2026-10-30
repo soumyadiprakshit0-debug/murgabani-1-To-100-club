@@ -741,87 +741,80 @@
   // LOAD DATA
   // =====================================================
 
-  async function load(initial = false) {
+  
+async function load(initial = false) {
+
+    const dashboardLoader = $("dashboardLoader");
 
     if (S.busy) return;
 
-
     // LOCAL PREVIEW DATA
-
     if (S.previewMode) {
 
-      const summary = previewSummary();
+        try {
+            const summary = previewSummary();
 
-      S.deposits = [...S.previewData.deposits];
+            S.deposits = [...S.previewData.deposits];
+            S.withdrawals = [...S.previewData.withdrawals];
+            S.notes = [...S.previewData.notes];
 
-      S.withdrawals = [...S.previewData.withdrawals];
+            renderSummary(summary);
+            renderDeposits();
+            renderWithdrawals();
+            renderNotes();
 
-      S.notes = [...S.previewData.notes];
+        } finally {
 
-      renderSummary(summary);
+            if (initial && dashboardLoader) {
+                dashboardLoader.classList.add("hide");
+            }
+        }
 
-      renderDeposits();
-
-      renderWithdrawals();
-
-      renderNotes();
-
-      return;
-
+        return;
     }
 
-
     // LIVE WEBSITE DATA
-
     try {
 
-      const data = await api("clubFundGetData");
+        const data = await api("clubFundGetData");
 
-      S.deposits = Array.isArray(data.deposits)
-        ? data.deposits
-        : [];
+        S.deposits = Array.isArray(data.deposits)
+            ? data.deposits : [];
 
-      S.withdrawals = Array.isArray(data.withdrawals)
-        ? data.withdrawals
-        : [];
+        S.withdrawals = Array.isArray(data.withdrawals)
+            ? data.withdrawals : [];
 
-      S.notes = Array.isArray(data.notes)
-        ? data.notes
-        : [];
+        S.notes = Array.isArray(data.notes)
+            ? data.notes : [];
 
+        if (data.member?.name) {
+            S.name = data.member.name;
+        }
 
-      if (data.member?.name) {
+        renderSummary(data.summary || {});
+        renderDeposits();
+        renderWithdrawals();
+        renderNotes();
 
-        S.name = data.member.name;
-
-      }
-
-
-      renderSummary(data.summary || {});
-
-      renderDeposits();
-
-      renderWithdrawals();
-
-      renderNotes();
-
-
-      $("recordedBy").value = S.name;
-
+        $("recordedBy").value = S.name;
 
     } catch (error) {
 
-      console.error(error);
+        console.error(error);
 
-      if (initial) {
+        if (initial) {
+            toast(error.message, "error");
+        }
 
-        toast(error.message, "error");
+    } finally {
 
-      }
-
+        // Hide only after the initial dashboard load
+        if (initial && dashboardLoader) {
+            dashboardLoader.classList.add("hide");
+        }
     }
+}
 
-  }
 
 
   // =====================================================
@@ -1621,13 +1614,18 @@ async function submitTransaction(data) {
 
     if (!S.collectorId || !S.token) {
 
-      sessionStorage.removeItem("clubFundToken");
+    const dashboardLoader = $("dashboardLoader");
 
-      location.replace("index.html");
-
-      return;
-
+    if (dashboardLoader) {
+        dashboardLoader.classList.add("hide");
     }
+
+    sessionStorage.removeItem("clubFundToken");
+
+    location.replace("index.html");
+
+    return;
+}
 
 
     // =================================================
