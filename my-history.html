@@ -1,0 +1,588 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b2447">
+
+    <title>My History | MURGABANI 1 TO 100 CLUB</title>
+
+    
+    <link rel="stylesheet" href="css/my-history.css">
+</head>
+
+<body>
+
+    <!-- ==============================
+         PAGE HEADER
+    =============================== -->
+
+    <header class="page-header">
+
+        <button
+            id="backBtn"
+            type="button"
+            aria-label="Go back to dashboard">
+            ↩️
+        </button>
+
+        <div class="header-title">
+            <h1>📜 My History</h1>
+            <p>MURGABANI 1 TO 100 CLUB</p>
+        </div>
+
+        <button
+            id="refreshBtn"
+            type="button"
+            aria-label="Refresh history">
+            🔄
+        </button>
+
+    </header>
+
+
+    <main class="history-container">
+
+        <!-- ==============================
+             DASHBOARD CONTEXT
+        =============================== -->
+
+        <section class="context-card" aria-label="Selected dashboard information">
+
+            <div class="context-item">
+                <span class="context-label">Year</span>
+                <strong id="selectedYear">—</strong>
+            </div>
+
+            <div class="context-divider"></div>
+
+            <div class="context-item">
+                <span class="context-label">Puja</span>
+                <strong id="selectedPuja">—</strong>
+            </div>
+
+            <div class="context-divider"></div>
+
+            <div class="context-item member-context">
+                <span class="context-label">Records entered by</span>
+                <strong id="memberName">—</strong>
+            </div>
+
+        </section>
+
+
+        <!-- ==============================
+             HISTORY TABS
+        =============================== -->
+
+        <nav
+            class="history-tabs"
+            role="tablist"
+            aria-label="History categories">
+
+            <button
+                class="history-tab active"
+                id="villageTab"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="villageSection"
+                data-target="villageSection">
+                🏠 Village Collection
+            </button>
+
+            <button
+                class="history-tab"
+                id="membersTab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="membersSection"
+                data-target="membersSection">
+                👥 Members Collection
+            </button>
+
+            <button
+                class="history-tab"
+                id="roadTab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="roadSection"
+                data-target="roadSection">
+                🚗 Road Collection
+            </button>
+
+            <button
+                class="history-tab"
+                id="expensesTab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="expensesSection"
+                data-target="expensesSection">
+                💸 Expenses
+            </button>
+
+        </nav>
+
+
+        <!-- =================================
+             VILLAGE COLLECTION
+        ================================== -->
+
+        <section
+            class="history-section"
+            id="villageSection"
+            role="tabpanel"
+            aria-labelledby="villageTab">
+
+            <!-- Financial Summary -->
+
+            <div class="history-summary">
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">📋</span>
+
+                    <div>
+                        <span class="summary-label">Total Records</span>
+                        <strong id="villageCount">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">💰</span>
+
+                    <div>
+                        <span class="summary-label">Total Collection</span>
+                        <strong id="villageAmount">₹0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-heading">
+
+                <h3>🏠 Village Collection</h3>
+
+                <input
+                    class="table-search"
+                    id="villageSearch"
+                    type="search"
+                    placeholder="🔍 Search records..."
+                    aria-label="Search village collection records"
+                    autocomplete="off">
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Contributor</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="villageBody">
+
+                        <tr>
+                            <td colspan="5" class="empty-cell">
+                                No records found.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             MEMBERS COLLECTION
+        ================================== -->
+
+        <section
+            class="history-section"
+            id="membersSection"
+            role="tabpanel"
+            aria-labelledby="membersTab"
+            hidden>
+
+            <!-- Financial Summary -->
+
+            <div class="history-summary">
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">📋</span>
+
+                    <div>
+                        <span class="summary-label">Total Records</span>
+                        <strong id="membersCount">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">💰</span>
+
+                    <div>
+                        <span class="summary-label">Total Collection</span>
+                        <strong id="membersAmount">₹0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-heading">
+
+                <h3>👥 Members Collection</h3>
+
+                <input
+                    class="table-search"
+                    id="membersSearch"
+                    type="search"
+                    placeholder="🔍 Search records..."
+                    aria-label="Search members collection records"
+                    autocomplete="off">
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Member</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="membersBody">
+
+                        <tr>
+                            <td colspan="6" class="empty-cell">
+                                No records found.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             ROAD COLLECTION
+        ================================== -->
+
+        <section
+            class="history-section"
+            id="roadSection"
+            role="tabpanel"
+            aria-labelledby="roadTab"
+            hidden>
+
+            <!-- Financial Summary -->
+
+            <div class="history-summary">
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">📋</span>
+
+                    <div>
+                        <span class="summary-label">Total Records</span>
+                        <strong id="roadCount">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">💰</span>
+
+                    <div>
+                        <span class="summary-label">Total Collection</span>
+                        <strong id="roadAmount">₹0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-heading">
+
+                <h3>🚗 Road Collection</h3>
+
+                <input
+                    class="table-search"
+                    id="roadSearch"
+                    type="search"
+                    placeholder="🔍 Search records..."
+                    aria-label="Search road collection records"
+                    autocomplete="off">
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Vehicle No.</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Vehicle Type</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="roadBody">
+
+                        <tr>
+                            <td colspan="5" class="empty-cell">
+                                No records found.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             EXPENSES
+        ================================== -->
+
+        <section
+            class="history-section"
+            id="expensesSection"
+            role="tabpanel"
+            aria-labelledby="expensesTab"
+            hidden>
+
+            <!-- Financial Summary -->
+
+            <div class="history-summary">
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">📋</span>
+
+                    <div>
+                        <span class="summary-label">Total Records</span>
+                        <strong id="expensesCount">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <span class="summary-icon">💸</span>
+
+                    <div>
+                        <span class="summary-label">Total Expenses</span>
+                        <strong id="expensesAmount">₹0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-heading">
+
+                <h3>💸 Expenses</h3>
+
+                <input
+                    class="table-search"
+                    id="expensesSearch"
+                    type="search"
+                    placeholder="🔍 Search records..."
+                    aria-label="Search expense records"
+                    autocomplete="off">
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Expense</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="expensesBody">
+
+                        <tr>
+                            <td colspan="5" class="empty-cell">
+                                No records found.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==============================
+         PREMIUM LOADING OVERLAY
+    =============================== -->
+
+    <div
+        class="loading-overlay"
+        id="loadingOverlay"
+        aria-live="polite"
+        aria-hidden="true">
+
+        <div class="loading-card">
+
+            <div class="spinner" aria-hidden="true"></div>
+
+            <span class="loading-text">
+                Loading your history<span class="loading-dots"></span>
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================
+         EDIT MODAL
+    =============================== -->
+
+    <div
+        class="modal-backdrop"
+        id="editModal"
+        hidden>
+
+        <section
+            class="edit-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="editTitle">
+
+            <div class="modal-heading">
+
+                <div>
+                    <h2 id="editTitle">Edit Record</h2>
+                    <p id="editSubtitle"></p>
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    id="closeEditBtn"
+                    aria-label="Close edit window">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="editForm">
+
+                <div
+                    id="editFields"
+                    class="edit-fields">
+                </div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelEditBtn">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-btn">
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+
+
+    <!-- ==============================
+         TOAST NOTIFICATION
+    =============================== -->
+
+    <div
+        class="toast"
+        id="toast"
+        role="status"
+        aria-live="polite">
+    </div>
+
+
+    <!-- ==============================
+         JAVASCRIPT
+    =============================== -->
+
+  <script src="js/my-history.js" defer></script> 
+
+</body>
+</html>
