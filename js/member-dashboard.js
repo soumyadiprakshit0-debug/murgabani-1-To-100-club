@@ -655,11 +655,10 @@ document.getElementById("changePasswordBtn").addEventListener("click", () => {
 // ==========================
 // Analytics Button
 // ==========================
-document.getElementById("analyticsBtn").addEventListener("click", () => {
-
-    showComingSoon("📈", "Analytics");
-
-});
+document.getElementById("analyticsBtn")
+    ?.addEventListener("click", () => {
+        showComingSoon("📈", "Analytics");
+    });
 
 // ==========================
 // My History Button
@@ -677,21 +676,11 @@ if (historyBtn) {
             return;
         }
 
-        // Save selected dashboard filters
         sessionStorage.setItem("selectedYear", year);
         sessionStorage.setItem("selectedPuja", puja);
+        sessionStorage.setItem("returnDashboard", "member-dashboard.html");
 
-        // Set return destination
-        sessionStorage.setItem(
-            "returnDashboard",
-            "member-dashboard.html"
-        );
-
-        // Open My History
-        const url = new URL(
-            "my-history.html",
-            window.location.href
-        );
+        const url = new URL("my-history.html", window.location.href);
 
         url.searchParams.set("year", year);
         url.searchParams.set("puja", puja);
