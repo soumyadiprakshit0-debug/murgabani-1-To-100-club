@@ -667,13 +667,38 @@ document.getElementById("analyticsBtn").addEventListener("click", () => {
 const historyBtn = document.getElementById("historyBtn");
 
 if (historyBtn) {
-
     historyBtn.addEventListener("click", () => {
 
-      showComingSoon("📜", "My History");  
+        const year = yearSelect.value;
+        const puja = pujaSelect.value;
 
+        if (!year || !puja) {
+            alert("Please select Year and Puja first.");
+            return;
+        }
+
+        // Save selected dashboard filters
+        sessionStorage.setItem("selectedYear", year);
+        sessionStorage.setItem("selectedPuja", puja);
+
+        // Set return destination
+        sessionStorage.setItem(
+            "returnDashboard",
+            "member-dashboard.html"
+        );
+
+        // Open My History
+        const url = new URL(
+            "my-history.html",
+            window.location.href
+        );
+
+        url.searchParams.set("year", year);
+        url.searchParams.set("puja", puja);
+        url.searchParams.set("_", Date.now());
+
+        window.location.href = url.href;
     });
-
 }
 
 // ==========================
