@@ -122,7 +122,7 @@
                 "expenseName",
                 "category",
                 "amount",
-                "paidBy",
+               
                 "note"
             ],
 
