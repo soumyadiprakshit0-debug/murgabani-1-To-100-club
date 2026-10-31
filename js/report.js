@@ -366,6 +366,7 @@ function resetCharts() {
 }
 
 
+
 // ======================================
 // RENDER VILLAGE TABLE
 // ======================================
@@ -378,7 +379,7 @@ function renderVillageTable(records) {
 
         villageTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     No records found
                 </td>
             </tr>
@@ -392,15 +393,19 @@ function renderVillageTable(records) {
 
             <tr>
 
-                <td>${item.date}</td>
+                <td>${item.date || "—"}</td>
 
-                <td>${item.contributor}</td>
-
-                <td>${item.collector}</td>
+                <td>${item.contributor || "—"}</td>
 
                 <td>
-                    ${formatMoney(item.amount)}
+                    <strong>
+                        ${formatMoney(item.amount)}
+                    </strong>
                 </td>
+
+                <td>${item.note || "—"}</td>
+
+                <td>${item.collector || "—"}</td>
 
             </tr>
 
@@ -4209,7 +4214,7 @@ function buildVillagePage(
     const villageRows =
         getTableRows(
             "#villageTableBody tr",
-            4
+            5
         );
 
 
@@ -4224,8 +4229,9 @@ function buildVillagePage(
         head: [[
             "Date",
             "Contributor Name",
-            "Collector",
-            "Amount"
+            "Amount",
+            "Note",
+            "Collector"
         ]],
 
         body:
@@ -4237,10 +4243,11 @@ function buildVillagePage(
 
                         row[0],
                         row[1],
-                        row[2],
                         cleanPDFValue(
-                            row[3]
-                        )
+                            row[2]
+                        ),
+                        row[3] || "—",
+                        row[4]
 
                     ]
                 )
@@ -4248,8 +4255,9 @@ function buildVillagePage(
                 : [[
                     "No records",
                     "",
+                    "Rs. 0",
                     "",
-                    "Rs. 0"
+                    ""
                 ]],
 
         headStyles: {
@@ -4296,31 +4304,29 @@ function buildVillagePage(
 
         columnStyles: {
 
-            0: {
-                cellWidth: 32
-            },
+    0: {
+        cellWidth: 28
+    },
 
-            1: {
-                cellWidth: 55
-            },
+    1: {
+        cellWidth: 48
+    },
 
-            2: {
-                cellWidth: 55
-            },
+    2: {
+        cellWidth: 28,
+        halign: "right",
+        fontStyle: "bold"
+    },
 
-            3: {
+    3: {
+        cellWidth: 40
+    },
 
-                cellWidth: 38,
+    4: {
+        cellWidth: 36
+    }
 
-                halign:
-                    "right",
-
-                fontStyle:
-                    "bold"
-
-            }
-
-        },
+},
 
         margin: {
 
