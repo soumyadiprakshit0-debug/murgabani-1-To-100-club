@@ -306,3 +306,42 @@ document.getElementById("memberManageBtn").addEventListener("click", () => {
     window.location.assign("manage-members.html");
 
 });
+
+
+// ==========================
+// My History Button
+// ==========================
+
+document.getElementById("myHistoryBtn")
+    ?.addEventListener("click", () => {
+
+        const year = yearSelect.value;
+        const puja = pujaSelect.value;
+
+        if (!year || !puja) {
+            alert("Please select Year and Puja first.");
+            return;
+        }
+
+        // Preserve dashboard selection.
+        sessionStorage.setItem("selectedYear", year);
+        sessionStorage.setItem("selectedPuja", puja);
+
+        // Preserve correct dashboard destination.
+        sessionStorage.setItem(
+            "returnDashboard",
+            "admin-dashboard.html"
+        );
+
+        // Open My History with selected context.
+        const url = new URL(
+            "my-history.html",
+            window.location.href
+        );
+
+        url.searchParams.set("year", year);
+        url.searchParams.set("puja", puja);
+
+        window.location.href = url.href;
+
+    });
