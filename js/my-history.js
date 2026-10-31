@@ -830,11 +830,29 @@
 
             $("editModal").hidden = false;
 
-            const firstInput = $("editFields").querySelector(
-                "input, textarea, select"
-            );
+           
+const firstInput = $("editFields").querySelector(
+    "input, textarea, select"
+);
 
-            if (firstInput) firstInput.focus();
+if (firstInput) {
+    firstInput.focus();
+
+    // Position text cursor at the end of existing text
+    if (
+        firstInput.tagName === "INPUT" &&
+        firstInput.type === "text"
+    ) {
+        const length = firstInput.value.length;
+        firstInput.setSelectionRange(length, length);
+    }
+
+    if (firstInput.tagName === "TEXTAREA") {
+        const length = firstInput.value.length;
+        firstInput.setSelectionRange(length, length);
+    }
+}
+
 
         } catch (error) {
             hideLoading();
