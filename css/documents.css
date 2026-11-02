@@ -1073,3 +1073,63 @@ textarea:focus-visible {
     outline: 3px solid rgba(217, 164, 65, 0.7);
     outline-offset: 2px;
 }
+
+
+
+/* =========================================
+   DOCUMENT CENTRE - SINGLE ROW LAYOUT
+========================================= */
+
+/* Display one document per row */
+.document-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Full-width document card */
+.document-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Prevent content overflow */
+.document-card-info,
+.document-card-title,
+.document-description {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Document action buttons */
+.document-actions {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.document-actions .btn {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+
+    .document-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .document-card {
+        padding: 18px;
+    }
+
+    .document-actions {
+        gap: 10px;
+    }
+
+}
