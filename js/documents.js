@@ -288,59 +288,46 @@
        7. SEARCH AND FILTER
     ===================================================== */
 
-    function getFilteredDocuments() {
+   
+function getFilteredDocuments() {
 
-        const search =
-            ($("documentSearch")?.value || "")
-                .trim()
-                .toLowerCase();
+    const search =
+        ($("documentSearch")?.value || "")
+            .trim()
+            .toLowerCase();
 
-        const category =
-            $("categoryFilter")?.value || "";
+    // Search only. No category or sorting filters.
+    // The backend already returns newest documents first.
 
-        const sort =
-            $("sortDocuments")?.value || "newest";
+    return [...state.publishedDocuments]
+        .filter(doc => {
 
-        let documents = [...state.publishedDocuments];
-
-        documents = documents.filter(doc => {
-
-            const matchesSearch = [
+            return [
                 doc.title,
                 doc.description,
                 doc.category,
-                doc.fileName
+                doc.fileName,
+                doc.uploadedByName
             ].some(value =>
                 String(value || "")
                     .toLowerCase()
                     .includes(search)
             );
 
-            const matchesCategory =
-                !category || doc.category === category;
+        })
+        .sort((a, b) => {
 
-            return matchesSearch && matchesCategory;
+            const dateA =
+                new Date(a.publishedAt || 0).getTime();
+
+            const dateB =
+                new Date(b.publishedAt || 0).getTime();
+
+            return dateB - dateA;
+
         });
+}
 
-        documents.sort((a, b) => {
-
-            if (sort === "title") {
-
-                return String(a.title).localeCompare(
-                    String(b.title)
-                );
-            }
-
-            const dateA = new Date(a.publishedAt || 0).getTime();
-            const dateB = new Date(b.publishedAt || 0).getTime();
-
-            return sort === "oldest"
-                ? dateA - dateB
-                : dateB - dateA;
-        });
-
-        return documents;
-    }
 
 
     /* =====================================================
