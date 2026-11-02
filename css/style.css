@@ -2268,3 +2268,74 @@ a{
     }
 
 }
+
+
+
+
+/* =========================================
+   DOCUMENTS - COLOURFUL GLOWING TEXT
+========================================= */
+
+.main-nav a[href="documents.html"] {
+    display: inline-block;
+
+    font-weight: 800;
+
+    background: linear-gradient(
+        90deg,
+        #00c853,
+        #00b8ff,
+        #a855f7,
+        #ff9800,
+        #00c853
+    );
+
+    background-size: 300% auto;
+
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    animation:
+        documentTextGlow 4s linear infinite,
+        documentLight 2s ease-in-out infinite alternate;
+
+    transition: transform 0.25s ease;
+}
+
+.main-nav a[href="documents.html"]:hover {
+    transform: scale(1.07);
+}
+
+@keyframes documentTextGlow {
+
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 300% center;
+    }
+}
+
+@keyframes documentLight {
+
+    from {
+        filter: drop-shadow(0 0 2px rgba(0, 200, 83, 0.35));
+    }
+
+    to {
+        filter: drop-shadow(0 0 7px rgba(0, 184, 255, 0.75));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .main-nav a[href="documents.html"] {
+        animation: none;
+        background-position: center;
+    }
+
+}
