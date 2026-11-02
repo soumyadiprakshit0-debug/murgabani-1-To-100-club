@@ -425,7 +425,7 @@ function getFilteredDocuments() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            ⤓ Download
+                            📥 Download
                         </a>
 
                     </div>
