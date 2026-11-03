@@ -87,6 +87,42 @@
     }
 
 
+   
+/* =====================================================
+   BACK BUTTON REDIRECTION
+===================================================== */
+
+function configureBackButton() {
+
+    const backButton = document.querySelector(".back-link");
+
+    if (!backButton) return;
+
+    if (state.isLoggedIn) {
+
+        if (isAdmin()) {
+
+            backButton.href = "admin-dashboard.html";
+
+        } else {
+
+            backButton.href = "member-dashboard.html";
+
+        }
+
+        backButton.textContent = "← Back to Dashboard";
+
+    } else {
+
+        backButton.href = "index.html";
+
+        backButton.textContent = "← Back to Home";
+
+    }
+}
+
+
+
     /* =====================================================
        4. DOM HELPERS
     ===================================================== */
@@ -1339,7 +1375,9 @@ async function confirmAdminAction() {
 
     async function init() {
 
-        readSession();
+        readSession(); 
+       
+       configureBackButton();
 
         configureUserSections();
 
