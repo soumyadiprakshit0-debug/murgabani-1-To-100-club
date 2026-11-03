@@ -110,13 +110,13 @@ function configureBackButton() {
 
         }
 
-        backButton.textContent = "← Back to Dashboard";
+        backButton.textContent = "❮ Back to Dashboard";
 
     } else {
 
         backButton.href = "index.html";
 
-        backButton.textContent = "← Back to Home";
+        backButton.textContent = "❮ Back to Home";
 
     }
 }
