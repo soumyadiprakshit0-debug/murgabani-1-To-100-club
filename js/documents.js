@@ -175,6 +175,42 @@
     }
 
 
+   
+/* =====================================================
+   PREMIUM GLOBAL LOADER
+===================================================== */
+
+let activeLoaders = 0;
+
+function startGlobalLoader(message = "Please wait...") {
+
+    const loader = $("globalLoader");
+
+    if (!loader) return () => {};
+
+    activeLoaders++;
+
+    setText("loaderMessage", message);
+
+    loader.hidden = false;
+
+    let stopped = false;
+
+    return function stopGlobalLoader() {
+
+        if (stopped) return;
+
+        stopped = true;
+
+        activeLoaders = Math.max(0, activeLoaders - 1);
+
+        if (activeLoaders === 0) {
+            loader.hidden = true;
+        }
+    };
+}
+
+
     function showError(message) {
 
         show($("documentGrid"), false);
@@ -441,33 +477,40 @@ function getFilteredDocuments() {
        9. LOAD PUBLIC DOCUMENTS
     ===================================================== */
 
-    async function loadPublishedDocuments() {
+    
+async function loadPublishedDocuments() {
 
-        show($("errorState"), false);
-        show($("emptyState"), false);
-        show($("documentGrid"), false);
+    const stopLoader = startGlobalLoader(
+        "Loading published documents..."
+    );
 
-        showStatus("Loading published documents...");
+    show($("errorState"), false);
+    show($("emptyState"), false);
+    show($("documentGrid"), false);
 
-        try {
+    showStatus("Loading published documents...");
 
-            state.publishedDocuments =
-                await getPublicDocuments();
+    try {
 
-            renderPublishedDocuments();
+        state.publishedDocuments =
+            await getPublicDocuments();
 
-        } catch (error) {
+        renderPublishedDocuments();
 
-            console.error(
-                "Public document loading failed:",
-                error
-            );
+    } catch (error) {
 
-            showError(error.message);
+        console.error(
+            "Public document loading failed:",
+            error
+        );
 
-        }
+        showError(error.message);
+
+    } finally {
+
+        stopLoader();
     }
-
+}
 
     /* =====================================================
        10. PDF PREVIEW
@@ -783,36 +826,46 @@ function getFilteredDocuments() {
        15. MY UPLOADED DOCUMENTS
     ===================================================== */
 
-    async function loadMyDocuments() {
+    
+async function loadMyDocuments() {
 
-        if (!state.isLoggedIn) return;
+    if (!state.isLoggedIn) return;
 
-        const container = $("myDocumentsList");
+    const container = $("myDocumentsList");
 
-        if (!container) return;
+    if (!container) return;
 
-        container.textContent = "Loading your documents...";
+    const stopLoader = startGlobalLoader(
+        "Loading your documents..."
+    );
 
-        try {
+    container.textContent = "Loading your documents...";
 
-            const result = await api("getMyDocuments");
+    try {
 
-            state.myDocuments =
-                result.data?.documents || [];
+        const result = await api("getMyDocuments");
 
-            renderMyDocuments();
+        state.myDocuments =
+            result.data?.documents || [];
 
-        } catch (error) {
+        renderMyDocuments();
 
-            console.error(
-                "My documents loading failed:",
-                error
-            );
+    } catch (error) {
 
-            container.textContent = error.message;
-        }
+        console.error(
+            "My documents loading failed:",
+            error
+        );
+
+        container.textContent = error.message;
+
+    } finally {
+
+        stopLoader();
     }
+}
 
+   
 
     function renderMyDocuments() {
 
@@ -865,35 +918,44 @@ function getFilteredDocuments() {
        16. ADMIN DOCUMENT MANAGEMENT
     ===================================================== */
 
-    async function loadAdminDocuments() {
+    
+async function loadAdminDocuments() {
 
-        if (!isAdmin()) return;
+    if (!isAdmin()) return;
 
-        const container = $("adminDocumentsList");
+    const container = $("adminDocumentsList");
 
-        if (!container) return;
+    if (!container) return;
 
-        container.textContent = "Loading documents...";
+    const stopLoader = startGlobalLoader(
+        "Loading club documents..."
+    );
 
-        try {
+    container.textContent = "Loading documents...";
 
-            const result = await api("getAllDocuments");
+    try {
 
-            state.adminDocuments =
-                result.data?.documents || [];
+        const result = await api("getAllDocuments");
 
-            renderAdminDocuments();
+        state.adminDocuments =
+            result.data?.documents || [];
 
-        } catch (error) {
+        renderAdminDocuments();
 
-            console.error(
-                "Admin document loading failed:",
-                error
-            );
+    } catch (error) {
 
-            container.textContent = error.message;
-        }
+        console.error(
+            "Admin document loading failed:",
+            error
+        );
+
+        container.textContent = error.message;
+
+    } finally {
+
+        stopLoader();
     }
+}
 
 
     function renderAdminDocuments() {
@@ -1048,64 +1110,76 @@ function getFilteredDocuments() {
     }
 
 
-    async function confirmAdminAction() {
+    
+async function confirmAdminAction() {
 
-        if (!state.pendingAction) return;
+    if (!state.pendingAction) return;
 
-        const {
-            action,
-            documentId
-        } = state.pendingAction;
+    const {
+        action,
+        documentId
+    } = state.pendingAction;
 
-        const actionMap = {
+    const actionMap = {
 
-            archive: "archiveDocument",
-            restore: "restoreDocument",
-            delete: "deleteDocument"
-        };
+        archive: "archiveDocument",
+        restore: "restoreDocument",
+        delete: "deleteDocument"
+    };
 
-        const button = $("confirmActionBtn");
+    const button = $("confirmActionBtn");
+
+    const stopLoader = startGlobalLoader(
+        action === "archive"
+            ? "Archiving document..."
+            : action === "restore"
+                ? "Restoring document..."
+                : "Deleting document..."
+    );
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Processing...";
+    }
+
+    try {
+
+        const result = await api(
+            actionMap[action],
+            { documentId }
+        );
+
+        closeConfirmation();
+
+        await loadAdminDocuments();
+
+        await loadPublishedDocuments();
+
+        await loadMyDocuments();
+
+        alert(
+            result.message ||
+            "Document action completed."
+        );
+
+    } catch (error) {
+
+        alert(
+            error.message ||
+            "Unable to complete this action."
+        );
+
+    } finally {
+
+        stopLoader();
 
         if (button) {
-            button.disabled = true;
-            button.textContent = "Processing...";
-        }
-
-        try {
-
-            const result = await api(
-                actionMap[action],
-                { documentId }
-            );
-
-            closeConfirmation();
-
-            await loadAdminDocuments();
-
-            await loadPublishedDocuments();
-
-            await loadMyDocuments();
-
-            alert(
-                result.message ||
-                "Document action completed."
-            );
-
-        } catch (error) {
-
-            alert(
-                error.message ||
-                "Unable to complete this action."
-            );
-
-        } finally {
-
-            if (button) {
-                button.disabled = false;
-                button.textContent = "Confirm";
-            }
+            button.disabled = false;
+            button.textContent = "Confirm";
         }
     }
+}
+
 
 
     /* =====================================================
