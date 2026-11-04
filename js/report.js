@@ -1,4 +1,4 @@
-```javascript
+
 // ======================================
 // REPORTS.JS
 // MURGABANI 1 TO 100 CLUB
