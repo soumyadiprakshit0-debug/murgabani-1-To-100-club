@@ -1327,3 +1327,40 @@ select:focus-visible {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+
+/* ==========================
+   LOADING SCREEN TYPOGRAPHY
+========================== */
+
+.loading h3 {
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.loading p {
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.loading small {
+    font-size: 17px;
+}
+
+/* Mobile adjustment */
+@media (max-width: 600px) {
+    .loading h3 {
+        font-size: 24px;
+        letter-spacing: 1.5px;
+    }
+
+    .loading p {
+        font-size: 21px;
+    }
+
+    .loading small {
+        font-size: 18px;
+    }
+}
