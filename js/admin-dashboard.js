@@ -1,341 +1,518 @@
-// ======================================
-// MURGABANI CLUB
-// Admin Dashboard
-// ======================================
-// ======================================
-// ADMIN ACCESS PROTECTION
-// ======================================
 
-const loggedIn = sessionStorage.getItem("loggedIn");
-const memberRole = sessionStorage.getItem("memberRole");
+"use strict";
 
-if (loggedIn !== "true" || memberRole !== "Admin") {
+// ======================================================
+// MURGABANI 1 TO 100 CLUB
+// ADMIN DASHBOARD — OPTIMIZED VERSION
+// ======================================================
 
-    alert("Access denied. Admin login required.");
+document.addEventListener("DOMContentLoaded", () => {
 
-    window.location.replace("login.html");
+    // ==================================================
+    // 1. ADMIN ACCESS PROTECTION
+    // ==================================================
 
-    throw new Error("Unauthorized admin access");
-
-}
-
-
-// ==========================
-// Disable Browser Back Button
-// ==========================
-history.pushState(null, null, location.href);
-
-window.addEventListener("popstate", () => {
-    history.pushState(null, null, location.href);
-});
-
-// NEW WEB APP URL
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxVNrYgPMqWGibcTQyFth5aPYwJmP4cbeW29sUZaAUjeBtD3Ap_T6ztRBqO_eYAqW1D/exec";
-
-const welcome = document.getElementById("welcome");
-const yearSelect = document.getElementById("year");
-const pujaSelect = document.getElementById("puja");
-
-const members = document.getElementById("members");
-const collection = document.getElementById("collection");
-const expenses = document.getElementById("expenses");
-const balance = document.getElementById("balance");
-
-const loading = document.getElementById("loading");
-
-// Welcome
-welcome.textContent =
-"Welcome, " + (sessionStorage.getItem("memberName") || "Member");
-
-// Loading
-function showLoading(show) {
-    loading.style.display = show ? "block" : "none";
-  yearSelect.disabled = show;
-    pujaSelect.disabled = show;
-}
-
-// Load Dashboard (Fast)
-async function loadDashboardInit() {
-
-    showLoading(true);
-
-    try {
-
-        const response = await fetch(API_URL + "?action=dashboardInit");
-        const data = await response.json();
-
-        if (!data.success) {
-            alert("Unable to load dashboard.");
-            return;
-        }
-
-        // Years
-        yearSelect.innerHTML = "";
-
-        data.years.forEach(year => {
-
-            yearSelect.innerHTML +=
-                `<option value="${year}">${year}</option>`;
-
-        });
-
-        yearSelect.value = data.selectedYear;
-
-        // Pujas
-        pujaSelect.innerHTML = "";
-
-        data.pujas.forEach(puja => {
-
-            pujaSelect.innerHTML +=
-                `<option value="${puja}">${puja}</option>`;
-
-        });
-
-        pujaSelect.value = data.selectedPuja;
-
-        // Cards
-        members.textContent = data.members;
-        collection.textContent =
-"₹" + Number(data.collection).toLocaleString("en-IN");
-
-expenses.textContent =
-"₹" + Number(data.expense).toLocaleString("en-IN");
-
-balance.textContent =
-"₹" + Number(data.balance).toLocaleString("en-IN");
-      balance.style.color =
-Number(data.balance) >= 0
-? "#16a34a"
-: "#dc2626";
-
-    } catch (err) {
-
-        console.error(err);
-        alert("Unable to load dashboard.");
-
-    }
-
-    showLoading(false);
-}
-
-// Reload Dashboard when filter changes
-async function loadDashboard() {
-
-    showLoading(true);
-
-    try {
-
-        const response = await fetch(
-            API_URL +
-            "?action=dashboard" +
-            "&year=" + encodeURIComponent(yearSelect.value) +
-            "&puja=" + encodeURIComponent(pujaSelect.value)
-        );
-
-        const data = await response.json();
-
-        if (data.success) {
-
-            members.textContent = data.members;
-         collection.textContent =
-"₹" + Number(data.collection).toLocaleString("en-IN");
-
-expenses.textContent =
-"₹" + Number(data.expense).toLocaleString("en-IN");
-
-balance.textContent =
-"₹" + Number(data.balance).toLocaleString("en-IN"); 
-          balance.style.color =
-Number(data.balance) >= 0
-? "#16a34a"
-: "#dc2626";
-
-        }
-
-    } catch (err) {
-
-        console.error(err);
-
-    }
-
-    showLoading(false);
-}
-
-// Change Year
-yearSelect.addEventListener("change", async () => {
-
-    showLoading(true);
-
-    try {
-
-        const response = await fetch(
-            API_URL +
-            "?action=pujas&year=" +
-            encodeURIComponent(yearSelect.value)
-        );
-
-        const pujas = await response.json();
-
-        pujaSelect.innerHTML = "";
-
-        pujas.forEach(puja => {
-
-            pujaSelect.innerHTML +=
-                `<option value="${puja}">${puja}</option>`;
-
-        });
-
-        await loadDashboard();
-
-    } catch (err) {
-
-        console.error(err);
-
-    }
-
-    showLoading(false);
-
-});
-
-// Change Puja
-pujaSelect.addEventListener("change", loadDashboard);
-
-// Start
-loadDashboardInit();
-
-
-
-/* =====================================================
-   CUSTOM COLLECTION PAGE NAVIGATION
-   ===================================================== */
-
-function openCollectionPage(page) {
-    const yearSelect = document.getElementById("year");
-    const pujaSelect = document.getElementById("puja");
-
-    const year = yearSelect?.value || sessionStorage.getItem("selectedYear") || "";
-    const puja = pujaSelect?.value || sessionStorage.getItem("selectedPuja") || "";
-
-    if (!year || !puja) {
-        alert("Please select a year and Puja before opening this page.");
+    if (
+        sessionStorage.getItem("loggedIn") !== "true" ||
+        sessionStorage.getItem("memberRole") !== "Admin"
+    ) {
+        alert("Access denied. Admin login required.");
+        window.location.replace("login.html");
         return;
     }
 
-    // Preserve the dashboard filters.
-    sessionStorage.setItem("selectedYear", year);
-    sessionStorage.setItem("selectedPuja", puja);
+    // ==================================================
+    // 2. CONFIGURATION
+    // ==================================================
 
-    // Preserve the correct return destination.
-    const isAdminDashboard =
-        window.location.pathname.toLowerCase().endsWith("admin-dashboard.html");
+    const API_URL =
+        "https://script.google.com/macros/s/AKfycbxVNrYgPMqWGibcTQyFth5aPYwJmP4cbeW29sUZaAUjeBtD3Ap_T6ztRBqO_eYAqW1D/exec";
 
-    const dashboardPage = isAdminDashboard
-        ? "admin-dashboard.html"
-        : "member-dashboard.html";
+    const PUJAS = [
+        "Saraswati puja",
+        "Laxmi puja"
+    ];
 
-    sessionStorage.setItem("returnDashboard", dashboardPage);
+    const STORAGE = {
+        year: "selectedYear",
+        puja: "selectedPuja",
+        returnPage: "returnDashboard"
+    };
 
-    // Pass the selected context to the collection page.
-    const url = new URL(page, window.location.href);
-    url.searchParams.set("year", year);
-    url.searchParams.set("puja", puja);
-    url.searchParams.set("_", Date.now());
+    // ==================================================
+    // 3. ELEMENT REFERENCES
+    // ==================================================
 
-    window.location.href = url.href;
-}
+    const welcome = document.getElementById("welcome");
 
-// ==========================
-// Road Collection Button
-// ==========================
-/*document.getElementById("roadCollectionBtn").addEventListener("click", () => {
+    const yearSelect = document.getElementById("year");
+    const pujaSelect = document.getElementById("puja");
 
-    window.location.assign("road-collection.html");
+    const members = document.getElementById("members");
+    const collection = document.getElementById("collection");
+    const expenses = document.getElementById("expenses");
+    const balance = document.getElementById("balance");
 
-});*/
+    const loading = document.getElementById("loading");
 
-document.getElementById("roadCollectionBtn").addEventListener("click", () => {
+    const roadCollectionBtn =
+        document.getElementById("roadCollectionBtn");
 
-    sessionStorage.setItem("returnDashboard", "admin-dashboard.html");
+    const villageCollectionBtn =
+        document.getElementById("villageCollectionBtn");
 
-    window.location.assign("road-collection.html");
+    const memberCollectionBtn =
+        document.getElementById("memberCollectionBtn");
 
-});
+    const expenseBtn =
+        document.getElementById("expenseBtn");
 
+    const reportBtn =
+        document.getElementById("reportBtn");
 
-/* Village Collection */
-document.getElementById("villageCollectionBtn")
-    ?.addEventListener("click", () => {
-        openCollectionPage("village-collection.html");
+    const memberManageBtn =
+        document.getElementById("memberManageBtn");
+
+    const myHistoryBtn =
+        document.getElementById("myHistoryBtn");
+
+    // ==================================================
+    // 4. INITIAL VALIDATION
+    // ==================================================
+
+    if (!yearSelect || !pujaSelect) {
+        console.error("Admin dashboard filter elements missing.");
+        return;
+    }
+
+    // ==================================================
+    // 5. DASHBOARD STATE
+    // ==================================================
+
+    let dashboardRequestId = 0;
+    let dashboardInitialized = false;
+
+    let currentYear = "";
+    let currentPuja = "";
+
+    // ==================================================
+    // 6. WELCOME MESSAGE
+    // ==================================================
+
+    if (welcome) {
+        welcome.textContent =
+            "Welcome, " +
+            (sessionStorage.getItem("memberName") || "Member");
+    }
+
+    // ==================================================
+    // 7. DATE-BASED DEFAULT PUJA
+    // ==================================================
+
+    function getDefaultPuja() {
+
+        const month = Number(
+            new Intl.DateTimeFormat("en-US", {
+                month: "numeric",
+                timeZone: "Asia/Kolkata"
+            }).format(new Date())
+        );
+
+        return month <= 5
+            ? "Saraswati puja"
+            : "Laxmi puja";
+    }
+
+    // ==================================================
+    // 8. LOADING CONTROL
+    // ==================================================
+
+    function showLoading(show) {
+
+        if (loading) {
+            loading.style.display = show ? "block" : "none";
+        }
+
+        yearSelect.disabled = show;
+        pujaSelect.disabled = show;
+    }
+
+    // ==================================================
+    // 9. FORMAT CURRENCY
+    // ==================================================
+
+    function formatCurrency(value) {
+
+        return "₹" + Number(value || 0).toLocaleString("en-IN");
+    }
+
+    // ==================================================
+    // 10. UPDATE DASHBOARD CARDS
+    // ==================================================
+
+    function updateDashboardCards(data) {
+
+        if (members) {
+            members.textContent = Number(data.members || 0);
+        }
+
+        if (collection) {
+            collection.textContent =
+                formatCurrency(data.collection);
+        }
+
+        if (expenses) {
+            expenses.textContent =
+                formatCurrency(data.expense);
+        }
+
+        if (balance) {
+
+            const balanceValue = Number(data.balance || 0);
+
+            balance.textContent =
+                formatCurrency(balanceValue);
+
+            balance.style.color =
+                balanceValue >= 0
+                    ? "#16a34a"
+                    : "#dc2626";
+        }
+    }
+
+    // ==================================================
+    // 11. UPDATE ROAD COLLECTION BUTTON
+    // ==================================================
+
+    function updateRoadCollectionButton() {
+
+        if (!roadCollectionBtn) return;
+
+        const restricted =
+            currentPuja.toLowerCase() === "laxmi puja";
+
+        roadCollectionBtn.disabled = restricted;
+
+        roadCollectionBtn.setAttribute(
+            "aria-disabled",
+            String(restricted)
+        );
+
+        roadCollectionBtn.title = restricted
+            ? "Road Collection is available only during Saraswati Puja."
+            : "Enter Road Collection";
+    }
+
+    // ==================================================
+    // 12. SAVE FILTER SELECTION
+    // ==================================================
+
+    function saveSelectedFilters() {
+
+        if (!yearSelect.value || !pujaSelect.value) {
+            return;
+        }
+
+        currentYear = yearSelect.value;
+        currentPuja = pujaSelect.value;
+
+        sessionStorage.setItem(
+            STORAGE.year,
+            currentYear
+        );
+
+        sessionStorage.setItem(
+            STORAGE.puja,
+            currentPuja
+        );
+
+        updateRoadCollectionButton();
+    }
+
+    // ==================================================
+    // 13. POPULATE YEAR OPTIONS
+    // ==================================================
+
+    function populateYears(years) {
+
+        const uniqueYears = [
+            ...new Set(
+                (years || []).map(String)
+            )
+        ];
+
+        yearSelect.replaceChildren();
+
+        uniqueYears.forEach(year => {
+
+            const option = document.createElement("option");
+
+            option.value = year;
+            option.textContent = year;
+
+            yearSelect.appendChild(option);
+        });
+    }
+
+    // ==================================================
+    // 14. POPULATE PUJA OPTIONS
+    // ==================================================
+
+    function populatePujas() {
+
+        pujaSelect.replaceChildren();
+
+        PUJAS.forEach(puja => {
+
+            const option = document.createElement("option");
+
+            option.value = puja;
+            option.textContent = puja;
+
+            pujaSelect.appendChild(option);
+        });
+    }
+
+    // ==================================================
+    // 15. API REQUEST
+    // ==================================================
+
+    async function fetchAPI(params) {
+
+        const query = new URLSearchParams(params);
+
+        const response = await fetch(
+            API_URL + "?" + query.toString(),
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                "Server error: " + response.status
+            );
+        }
+
+        return response.json();
+    }
+
+    // ==================================================
+    // 16. LOAD DASHBOARD DATA
+    // ==================================================
+
+    async function loadDashboard() {
+
+        if (!yearSelect.value || !pujaSelect.value) {
+            return;
+        }
+
+        const year = yearSelect.value;
+        const puja = pujaSelect.value;
+
+        const requestId = ++dashboardRequestId;
+
+        saveSelectedFilters();
+        showLoading(true);
+
+        try {
+
+            const data = await fetchAPI({
+
+                action: "dashboard",
+
+                year: year,
+
+                puja: puja
+
+            });
+
+            // Ignore outdated responses.
+            if (requestId !== dashboardRequestId) {
+                return;
+            }
+
+            if (!data || !data.success) {
+
+                console.error(
+                    "Dashboard API error:",
+                    data?.message
+                );
+
+                return;
+            }
+
+            updateDashboardCards(data);
+
+        } catch (error) {
+
+            if (requestId === dashboardRequestId) {
+
+                console.error(
+                    "Dashboard loading error:",
+                    error
+                );
+
+            }
+
+        } finally {
+
+            if (requestId === dashboardRequestId) {
+                showLoading(false);
+            }
+        }
+    }
+
+    // ==================================================
+    // 17. INITIALIZE DASHBOARD
+    // ==================================================
+
+    async function loadDashboardInit() {
+
+        showLoading(true);
+
+        try {
+
+            const data = await fetchAPI({
+                action: "dashboardInit"
+            });
+
+            if (!data || !data.success) {
+
+                throw new Error(
+                    data?.message || "Unable to load dashboard."
+                );
+            }
+
+            // Populate filters.
+            populateYears(data.years);
+            populatePujas();
+
+            const savedYear =
+                sessionStorage.getItem(STORAGE.year);
+
+            const savedPuja =
+                sessionStorage.getItem(STORAGE.puja);
+
+            const availableYears = Array.from(
+                yearSelect.options
+            ).map(option => option.value);
+
+            // Restore saved Year if available.
+            const selectedYear =
+                savedYear && availableYears.includes(savedYear)
+                    ? savedYear
+                    : String(data.selectedYear);
+
+            yearSelect.value = selectedYear;
+
+            // Restore saved Puja if valid.
+            const selectedPuja =
+                PUJAS.includes(savedPuja)
+                    ? savedPuja
+                    : data.selectedPuja;
+
+            pujaSelect.value = PUJAS.includes(selectedPuja)
+                ? selectedPuja
+                : getDefaultPuja();
+
+            currentYear = yearSelect.value;
+            currentPuja = pujaSelect.value;
+
+            updateRoadCollectionButton();
+
+            // If restored filters differ from server defaults,
+            // request their corresponding financial data.
+            const needsCustomData =
+                currentYear !== String(data.selectedYear) ||
+                currentPuja !== data.selectedPuja;
+
+            if (needsCustomData) {
+
+                saveSelectedFilters();
+
+                showLoading(false);
+
+                await loadDashboard();
+
+            } else {
+
+                updateDashboardCards(data);
+
+                saveSelectedFilters();
+
+                showLoading(false);
+            }
+
+            dashboardInitialized = true;
+
+        } catch (error) {
+
+            console.error(
+                "Admin dashboard initialization error:",
+                error
+            );
+
+            showLoading(false);
+
+            alert("Unable to load dashboard. Please refresh the page.");
+        }
+    }
+
+    // ==================================================
+    // 18. YEAR CHANGE
+    // ==================================================
+
+    yearSelect.addEventListener("change", () => {
+
+        // Both Puja options remain available.
+        populatePujas();
+
+        // Use today's date-based Puja as the new year default.
+        pujaSelect.value = getDefaultPuja();
+
+        saveSelectedFilters();
+
+        loadDashboard();
     });
 
-/* Members Collection */
-document.getElementById("memberCollectionBtn")
-    ?.addEventListener("click", () => {
-        openCollectionPage("members-collection.html");
+    // ==================================================
+    // 19. PUJA CHANGE
+    // ==================================================
+
+    pujaSelect.addEventListener("change", () => {
+
+        saveSelectedFilters();
+
+        loadDashboard();
     });
 
-/* Expenses */
-document.getElementById("expenseBtn")
-    ?.addEventListener("click", () => {
-        openCollectionPage("expenses.html");
-    });
+    // ==================================================
+    // 20. NAVIGATION HELPER
+    // ==================================================
 
-// ==========================
-// Reports Button
-// ==========================
-document.getElementById("reportBtn").addEventListener("click", () => {
-
-    const year = yearSelect.value;
-    const puja = pujaSelect.value;
-
-    window.location.href =
-        "report.html?year=" +
-        encodeURIComponent(year) +
-        "&puja=" +
-        encodeURIComponent(puja);
-
-});
-
-// ==========================
-// Manage Members Button
-// ==========================
-
-document.getElementById("memberManageBtn").addEventListener("click", () => {
-
-    window.location.assign("manage-members.html");
-
-});
-
-
-// ==========================
-// My History Button
-// ==========================
-
-document.getElementById("myHistoryBtn")
-    ?.addEventListener("click", () => {
+    function openCollectionPage(page) {
 
         const year = yearSelect.value;
         const puja = pujaSelect.value;
 
         if (!year || !puja) {
+
             alert("Please select Year and Puja first.");
+
             return;
         }
 
-        // Preserve dashboard selection.
-        sessionStorage.setItem("selectedYear", year);
-        sessionStorage.setItem("selectedPuja", puja);
+        saveSelectedFilters();
 
-        // Preserve correct dashboard destination.
         sessionStorage.setItem(
-            "returnDashboard",
+            STORAGE.returnPage,
             "admin-dashboard.html"
         );
 
-        // Open My History with selected context.
         const url = new URL(
-            "my-history.html",
+            page,
             window.location.href
         );
 
@@ -343,5 +520,155 @@ document.getElementById("myHistoryBtn")
         url.searchParams.set("puja", puja);
 
         window.location.href = url.href;
+    }
+
+    // ==================================================
+    // 21. ROAD COLLECTION
+    // ==================================================
+
+    if (roadCollectionBtn) {
+
+        roadCollectionBtn.addEventListener("click", event => {
+
+            if (
+                currentPuja.toLowerCase() === "laxmi puja"
+            ) {
+
+                event.preventDefault();
+
+                alert(
+                    "Road Collection is available only during Saraswati Puja."
+                );
+
+                return;
+            }
+
+            saveSelectedFilters();
+
+            sessionStorage.setItem(
+                STORAGE.returnPage,
+                "admin-dashboard.html"
+            );
+
+            const url = new URL(
+                "road-collection.html",
+                window.location.href
+            );
+
+            url.searchParams.set("year", currentYear);
+            url.searchParams.set("puja", currentPuja);
+
+            window.location.href = url.href;
+        });
+    }
+
+    // ==================================================
+    // 22. VILLAGE COLLECTION
+    // ==================================================
+
+    villageCollectionBtn?.addEventListener("click", () => {
+
+        openCollectionPage("village-collection.html");
 
     });
+
+    // ==================================================
+    // 23. MEMBERS COLLECTION
+    // ==================================================
+
+    memberCollectionBtn?.addEventListener("click", () => {
+
+        openCollectionPage("members-collection.html");
+
+    });
+
+    // ==================================================
+    // 24. EXPENSES
+    // ==================================================
+
+    expenseBtn?.addEventListener("click", () => {
+
+        openCollectionPage("expenses.html");
+
+    });
+
+    // ==================================================
+    // 25. REPORTS
+    // ==================================================
+
+    reportBtn?.addEventListener("click", () => {
+
+        saveSelectedFilters();
+
+        const url = new URL(
+            "report.html",
+            window.location.href
+        );
+
+        url.searchParams.set("year", currentYear);
+        url.searchParams.set("puja", currentPuja);
+
+        window.location.href = url.href;
+    });
+
+    // ==================================================
+    // 26. MANAGE MEMBERS
+    // ==================================================
+
+    memberManageBtn?.addEventListener("click", () => {
+
+        window.location.href = "manage-members.html";
+
+    });
+
+    // ==================================================
+    // 27. MY HISTORY
+    // ==================================================
+
+    myHistoryBtn?.addEventListener("click", () => {
+
+        if (!yearSelect.value || !pujaSelect.value) {
+
+            alert("Please select Year and Puja first.");
+
+            return;
+        }
+
+        saveSelectedFilters();
+
+        sessionStorage.setItem(
+            STORAGE.returnPage,
+            "admin-dashboard.html"
+        );
+
+        const url = new URL(
+            "my-history.html",
+            window.location.href
+        );
+
+        url.searchParams.set("year", currentYear);
+        url.searchParams.set("puja", currentPuja);
+
+        window.location.href = url.href;
+    });
+
+    // ==================================================
+    // 28. LOGOUT
+    // ==================================================
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    logoutBtn?.addEventListener("click", () => {
+
+        sessionStorage.clear();
+
+        window.location.replace("login.html");
+    });
+
+    // ==================================================
+    // 29. START DASHBOARD
+    // ==================================================
+
+    loadDashboardInit();
+
+});
