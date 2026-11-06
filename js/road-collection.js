@@ -1,31 +1,33 @@
 
+// ==========================================
+// MURGABANI 1 TO 100 CLUB
+// OPTIMIZED ROAD COLLECTION
+// ==========================================
+
 document.addEventListener("DOMContentLoaded", () => {
 
     "use strict";
 
-    // ============================================================
+    // ======================================
     // CONFIGURATION
-    // ============================================================
+    // ======================================
 
     const API_URL =
         "https://script.google.com/macros/s/AKfycbxVNrYgPMqWGibcTQyFth5aPYwJmP4cbeW29sUZaAUjeBtD3Ap_T6ztRBqO_eYAqW1D/exec";
 
-    const CURRENT_YEAR = "2026";
-    const CURRENT_PUJA = "Saraswati puja";
+    const ALLOWED_PUJA = "Saraswati puja";
+
+    const VEHICLE_REGEX =
+        /^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/;
 
 
-    // ============================================================
-    // ELEMENTS
-    // ============================================================
+    // ======================================
+    // DOM ELEMENTS
+    // ======================================
 
-    const vehicleNo =
-        document.getElementById("vehicleNo");
-
-    const searchBtn =
-        document.getElementById("searchBtn");
-
-    const loading =
-        document.getElementById("loading");
+    const vehicleNo = document.getElementById("vehicleNo");
+    const searchBtn = document.getElementById("searchBtn");
+    const loading = document.getElementById("loading");
 
     const alreadyCollected =
         document.getElementById("alreadyCollected");
@@ -33,60 +35,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const collectionForm =
         document.getElementById("collectionForm");
 
-    const message =
-        document.getElementById("message");
+    const message = document.getElementById("message");
 
-    const aVehicle =
-        document.getElementById("aVehicle");
+    const aVehicle = document.getElementById("aVehicle");
+    const aType = document.getElementById("aType");
+    const aAmount = document.getElementById("aAmount");
+    const aCollector = document.getElementById("aCollector");
+    const aDate = document.getElementById("aDate");
 
-    const aType =
-        document.getElementById("aType");
+    const date = document.getElementById("date");
+    const vehicleType = document.getElementById("vehicleType");
+    const amount = document.getElementById("amount");
 
-    const aAmount =
-        document.getElementById("aAmount");
-
-    const aCollector =
-        document.getElementById("aCollector");
-
-    const aDate =
-        document.getElementById("aDate");
-
-    const date =
-        document.getElementById("date");
-
-    const vehicleType =
-        document.getElementById("vehicleType");
-
-    const amount =
-        document.getElementById("amount");
-
-    const saveBtn =
-        document.getElementById("saveBtn");
-
+    const saveBtn = document.getElementById("saveBtn");
     const searchAgainBtn =
         document.getElementById("searchAgainBtn");
 
     const mCollectionId =
         document.getElementById("mCollectionId");
 
-    const mVehicle =
-        document.getElementById("mVehicle");
+    const mVehicle = document.getElementById("mVehicle");
+    const mAmount = document.getElementById("mAmount");
 
-    const mAmount =
-        document.getElementById("mAmount");
-
-    const nextBtn =
-        document.getElementById("nextBtn");
+    const nextBtn = document.getElementById("nextBtn");
 
     const backDashboardBtn =
         document.getElementById("backDashboardBtn");
 
-        
 
-
-    // ============================================================
+    // ======================================
     // BASIC ELEMENT CHECK
-    // ============================================================
+    // ======================================
 
     if (!vehicleNo || !searchBtn) {
 
@@ -99,195 +78,104 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // ============================================================
+    // ======================================
+    // PAGE CONTEXT
+    // ======================================
+
+    const pageParams =
+        new URLSearchParams(window.location.search);
+
+    const savedYear =
+        sessionStorage.getItem("selectedYear");
+
+    const savedPuja =
+        sessionStorage.getItem("selectedPuja");
+
+    const currentDate = getIndiaDate();
+
+    const currentYear =
+        String(currentDate.year);
+
+    const currentDefaultPuja =
+        currentDate.month <= 5
+            ? "Saraswati puja"
+            : "Laxmi puja";
+
+    // URL parameters take priority over session filters.
+    const selectedYear =
+        pageParams.get("year") ||
+        savedYear ||
+        currentYear;
+
+    const selectedPuja =
+        pageParams.get("puja") ||
+        savedPuja ||
+        currentDefaultPuja;
+
+    const roadCollectionAllowed =
+        selectedPuja === ALLOWED_PUJA;
+
+
+    // ======================================
     // STATE
-    // ============================================================
+    // ======================================
 
     let searchRunning = false;
     let saveRunning = false;
 
     let searchController = null;
-    let saveController = null;
+    let searchRequestId = 0;
+
+    let currentVehicleNumber = "";
 
 
-    // ============================================================
-    // BACK TO DASHBOARD
-    // ============================================================
+    // ======================================
+    // INDIA DATE
+    // ======================================
 
+    function getIndiaDate() {
 
+        const parts = new Intl.DateTimeFormat(
+            "en-CA",
+            {
+                timeZone: "Asia/Kolkata",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit"
+            }
+        ).formatToParts(new Date());
 
+        const result = {};
 
-if (backDashboardBtn) {
-    backDashboardBtn.addEventListener("click", () => {
+        parts.forEach(part => {
+            result[part.type] = part.value;
+        });
 
-        const returnDashboard =
-            sessionStorage.getItem("returnDashboard");
-
-        if (returnDashboard) {
-            window.location.replace(returnDashboard);
-        } else {
-            // Safe fallback
-            window.location.replace("member-dashboard.html");
-        }
-
-    });
-}
-        
-
-    // ============================================================
-    // CUSTOM ALERT
-    // ============================================================
-
-    function showAlert(
-        icon,
-        title,
-        alertMessage,
-        type = "error"
-    ) {
-
-        const oldAlert =
-            document.getElementById(
-                "customAlert"
-            );
-
-        if (oldAlert) {
-            oldAlert.remove();
-        }
-
-
-        const alertBox =
-            document.createElement("div");
-
-        alertBox.id =
-            "customAlert";
-
-
-        alertBox.innerHTML = `
-            <div class="custom-alert-overlay">
-
-                <div class="custom-alert-box ${type}">
-
-                    <div class="custom-alert-icon">
-                        ${icon}
-                    </div>
-
-                    <h2>${title}</h2>
-
-                    <p>${alertMessage}</p>
-
-                    <button
-                        type="button"
-                        id="customAlertOk"
-                    >
-                        OK
-                    </button>
-
-                </div>
-
-            </div>
-        `;
-
-
-        document.body.appendChild(
-            alertBox
-        );
-
-
-        const okButton =
-            document.getElementById(
-                "customAlertOk"
-            );
-
-
-        if (okButton) {
-
-            okButton.addEventListener(
-                "click",
-                () => {
-
-                    alertBox.remove();
-
-                },
-                {
-                    once: true
-                }
-            );
-
-        }
+        return {
+            year: Number(result.year),
+            month: Number(result.month),
+            day: Number(result.day)
+        };
 
     }
 
-
-    // ============================================================
-    // HIDE ALL RESULT SECTIONS
-    // ============================================================
-
-    function hideAll() {
-
-        if (alreadyCollected) {
-            alreadyCollected.classList.add("hidden");
-        }
-
-        if (collectionForm) {
-            collectionForm.classList.add("hidden");
-        }
-
-        if (message) {
-            message.classList.add("hidden");
-        }
-
-        if (loading) {
-            loading.classList.add("hidden");
-        }
-
-    }
-
-
-    // ============================================================
-    // SHOW LOADING
-    // ============================================================
-
-    function setLoading(isLoading) {
-
-        if (!loading) {
-            return;
-        }
-
-        loading.classList.toggle(
-            "hidden",
-            !isLoading
-        );
-
-    }
-
-
-    // ============================================================
-    // TODAY
-    // ============================================================
 
     function today() {
 
-        const d =
-            new Date();
+        const d = getIndiaDate();
 
         return (
-            d.getFullYear() +
-            "-" +
-            String(
-                d.getMonth() + 1
-            ).padStart(2, "0") +
-            "-" +
-            String(
-                d.getDate()
-            ).padStart(2, "0")
+            d.year + "-" +
+            String(d.month).padStart(2, "0") + "-" +
+            String(d.day).padStart(2, "0")
         );
 
     }
 
 
-    // ============================================================
-    // FORMAT VEHICLE NUMBER
-    // ============================================================
+    // ======================================
+    // FORMAT HELPERS
+    // ======================================
 
     function formatVehicleNo(value) {
 
@@ -298,348 +186,511 @@ if (backDashboardBtn) {
     }
 
 
-    // ============================================================
-    // VALIDATE VEHICLE NUMBER
-    // ============================================================
-
     function isValidVehicleNo(number) {
 
-        return /^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/
-            .test(number);
+        return VEHICLE_REGEX.test(number);
 
     }
 
 
-    // ============================================================
-    // RESET FORM
-    // ============================================================
+    function formatCurrency(value) {
 
-    function resetForm() {
+        const number = Number(value) || 0;
 
-        // Cancel any previous search
-        if (searchController) {
+        return "₹" + number.toLocaleString("en-IN");
 
-            searchController.abort();
-            searchController = null;
+    }
 
+
+    function formatDate(value) {
+
+        if (!value) return "";
+
+        // Handle Google Sheets date strings.
+        const parsedDate = new Date(value);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return String(value);
         }
 
-
-        searchRunning = false;
-
-
-        if (vehicleNo) {
-            vehicleNo.value = "";
-        }
-
-        if (vehicleType) {
-            vehicleType.value = "";
-        }
-
-        if (amount) {
-            amount.value = "";
-        }
-
-        if (date) {
-            date.value = today();
-        }
-
-
-        hideAll();
-
-
-        if (searchBtn) {
-
-            searchBtn.disabled =
-                false;
-
-            searchBtn.textContent =
-                "Search";
-
-        }
-
-
-        if (saveBtn) {
-
-            saveBtn.disabled =
-                false;
-
-            saveBtn.textContent =
-                "Save Collection";
-
-        }
-
-
-        requestAnimationFrame(
-            () => {
-
-                vehicleNo.focus();
-
+        return parsedDate.toLocaleDateString(
+            "en-IN",
+            {
+                timeZone: "Asia/Kolkata",
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
             }
         );
 
     }
 
 
-    // ============================================================
-    // BUILD SEARCH URL
-    // ============================================================
+    // ======================================
+    // NAVIGATION
+    // ======================================
 
-    function buildSearchURL(number) {
+    function navigateTo(page) {
 
-        const params =
-            new URLSearchParams({
-
-                action:
-                    "searchVehicle",
-
-                vehicleNo:
-                    number,
-
-                year:
-                    CURRENT_YEAR,
-
-                puja:
-                    CURRENT_PUJA
-
-            });
-
-
-        return (
-            API_URL +
-            "?" +
-            params.toString()
+        const url = new URL(
+            page,
+            window.location.href
         );
+
+        url.searchParams.set("_", Date.now());
+
+        window.location.replace(url.href);
 
     }
 
 
-    // ============================================================
-    // BUILD SAVE URL
-    // ============================================================
+    if (backDashboardBtn) {
 
-    function buildSaveURL(number) {
+        backDashboardBtn.addEventListener("click", () => {
 
-        const collectorId =
-            sessionStorage.getItem(
-                "memberId"
-            ) || "M001";
+            const returnDashboard =
+                sessionStorage.getItem("returnDashboard");
 
+            const allowedPages = [
+                "admin-dashboard.html",
+                "member-dashboard.html"
+            ];
 
-        const collectorName =
-            sessionStorage.getItem(
-                "memberName"
-            ) || "Soumyadip";
+            const destination =
+                allowedPages.includes(returnDashboard)
+                    ? returnDashboard
+                    : "member-dashboard.html";
 
+            navigateTo(destination);
 
-        const params =
-            new URLSearchParams({
-
-                action:
-                    "saveRoadCollection",
-
-                date:
-                    date.value,
-
-                year:
-                    CURRENT_YEAR,
-
-                vehicleNo:
-                    number,
-
-                vehicleType:
-                    vehicleType.value,
-
-                puja:
-                    CURRENT_PUJA,
-
-                amount:
-                    amount.value,
-
-                collectorId:
-                    collectorId,
-
-                collectorName:
-                    collectorName
-
-            });
-
-
-        return (
-            API_URL +
-            "?" +
-            params.toString()
-        );
+        });
 
     }
 
 
-    // ============================================================
+    // ======================================
+    // CUSTOM ALERT
+    // ======================================
+
+    function showAlert(
+        icon,
+        title,
+        alertMessage,
+        type = "error"
+    ) {
+
+        const oldAlert =
+            document.getElementById("customAlert");
+
+        if (oldAlert) {
+            oldAlert.remove();
+        }
+
+        const alertBox =
+            document.createElement("div");
+
+        alertBox.id = "customAlert";
+
+        const overlay =
+            document.createElement("div");
+
+        overlay.className = "custom-alert-overlay";
+
+        const box =
+            document.createElement("div");
+
+        box.className =
+            "custom-alert-box " + type;
+
+        const iconElement =
+            document.createElement("div");
+
+        iconElement.className = "custom-alert-icon";
+        iconElement.textContent = icon;
+
+        const heading =
+            document.createElement("h2");
+
+        heading.textContent = title;
+
+        const paragraph =
+            document.createElement("p");
+
+        paragraph.textContent = alertMessage;
+
+        const button =
+            document.createElement("button");
+
+        button.type = "button";
+        button.textContent = "OK";
+
+        button.addEventListener("click", () => {
+            alertBox.remove();
+        }, { once: true });
+
+        box.append(
+            iconElement,
+            heading,
+            paragraph,
+            button
+        );
+
+        overlay.appendChild(box);
+        alertBox.appendChild(overlay);
+
+        document.body.appendChild(alertBox);
+
+    }
+
+
+    // ======================================
+    // PUJA RESTRICTION MESSAGE
+    // ======================================
+
+    function showRestrictionMessage() {
+
+        let restriction =
+            document.getElementById("roadRestrictionMessage");
+
+        if (!restriction) {
+
+            restriction =
+                document.createElement("div");
+
+            restriction.id =
+                "roadRestrictionMessage";
+
+            restriction.style.cssText = `
+                margin: 20px auto;
+                padding: 18px;
+                max-width: 700px;
+                border-radius: 12px;
+                background: #fff1f0;
+                border: 1px solid #f5b7b1;
+                color: #a93226;
+                text-align: center;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 1.6;
+            `;
+
+            const topbar =
+                document.querySelector(".topbar");
+
+            if (topbar && topbar.parentNode) {
+                topbar.insertAdjacentElement(
+                    "afterend",
+                    restriction
+                );
+            } else {
+                document.body.prepend(restriction);
+            }
+
+        }
+
+        restriction.textContent =
+            "Road Collection is available only during Saraswati Puja. " +
+            "Selected Puja: " + selectedPuja + ".";
+
+        restriction.classList.remove("hidden");
+
+        hideAll();
+
+        if (vehicleNo) vehicleNo.disabled = true;
+        if (searchBtn) searchBtn.disabled = true;
+        if (vehicleType) vehicleType.disabled = true;
+        if (amount) amount.disabled = true;
+        if (date) date.disabled = true;
+        if (saveBtn) saveBtn.disabled = true;
+
+    }
+
+
+    // ======================================
+    // HIDE ALL RESULT SECTIONS
+    // ======================================
+
+    function hideAll() {
+
+        [
+            alreadyCollected,
+            collectionForm,
+            message,
+            loading
+        ].forEach(element => {
+
+            if (element) {
+                element.classList.add("hidden");
+            }
+
+        });
+
+    }
+
+
+    // ======================================
+    // LOADING
+    // ======================================
+
+    function setLoading(isLoading) {
+
+        if (loading) {
+            loading.classList.toggle(
+                "hidden",
+                !isLoading
+            );
+        }
+
+    }
+
+
+    // ======================================
+    // API REQUEST HELPER
+    // ======================================
+
+    async function fetchAPI(params, signal) {
+
+        const url = new URL(API_URL);
+
+        Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.set(key, value);
+        });
+
+        const options = {
+            method: "GET",
+            cache: "no-store"
+        };
+
+        if (signal) {
+            options.signal = signal;
+        }
+
+        const response = await fetch(
+            url.toString(),
+            options
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Server error (" + response.status + ")"
+            );
+
+        }
+
+        return await response.json();
+
+    }
+
+
+    // ======================================
+    // RESET FORM
+    // ======================================
+
+    function resetForm() {
+
+        // Cancel only a search request.
+        if (searchController) {
+            searchController.abort();
+            searchController = null;
+        }
+
+        searchRequestId++;
+
+        searchRunning = false;
+
+        currentVehicleNumber = "";
+
+        if (vehicleNo) {
+            vehicleNo.value = "";
+            vehicleNo.disabled = false;
+        }
+
+        if (vehicleType) {
+            vehicleType.value = "";
+            vehicleType.disabled = false;
+        }
+
+        if (amount) {
+            amount.value = "";
+            amount.disabled = false;
+        }
+
+        if (date) {
+            date.value = today();
+            date.disabled = false;
+        }
+
+        hideAll();
+
+        if (searchBtn) {
+            searchBtn.disabled = false;
+            searchBtn.textContent = "Search";
+        }
+
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Collection";
+        }
+
+        if (roadCollectionAllowed) {
+
+            requestAnimationFrame(() => {
+                vehicleNo.focus();
+            });
+
+        }
+
+    }
+
+
+    // ======================================
+    // BUILD SEARCH PARAMETERS
+    // ======================================
+
+    function buildSearchParams(number) {
+
+        return {
+            action: "searchVehicle",
+            vehicleNo: number,
+            year: selectedYear,
+            puja: selectedPuja
+        };
+
+    }
+
+
+    // ======================================
+    // GET AUTHENTICATED COLLECTOR
+    // ======================================
+
+    function getCollectorDetails() {
+
+        return {
+            collectorId:
+                String(
+                    sessionStorage.getItem("memberId") || ""
+                ).trim(),
+
+            collectorName:
+                String(
+                    sessionStorage.getItem("memberName") || ""
+                ).trim()
+        };
+
+    }
+
+
+    // ======================================
+    // BUILD SAVE PARAMETERS
+    // ======================================
+
+    function buildSaveParams(number) {
+
+        const collector = getCollectorDetails();
+
+        return {
+            action: "saveRoadCollection",
+            date: date.value,
+            year: selectedYear,
+            vehicleNo: number,
+            vehicleType: vehicleType.value,
+            puja: selectedPuja,
+            amount: amount.value,
+            collectorId: collector.collectorId,
+            collectorName: collector.collectorName
+        };
+
+    }
+
+
+    // ======================================
     // SEARCH VEHICLE
-    // ============================================================
+    // ======================================
 
     async function searchVehicle() {
 
-        // ----------------------------------------
-        // Prevent duplicate search
-        // ----------------------------------------
-
-        if (searchRunning) {
-
+        if (!roadCollectionAllowed) {
+            showRestrictionMessage();
             return;
-
         }
 
+        if (searchRunning || saveRunning) {
+            return;
+        }
 
         const number =
-            formatVehicleNo(
-                vehicleNo.value
-            );
-
-
-        // ----------------------------------------
-        // Empty vehicle number
-        // ----------------------------------------
+            formatVehicleNo(vehicleNo.value);
 
         if (!number) {
 
-            alert(
-                "Enter Vehicle Number"
+            showAlert(
+                "🚗",
+                "Vehicle Number Required",
+                "Please enter a vehicle number."
             );
 
             vehicleNo.focus();
-
             return;
 
         }
-
-
-        // ----------------------------------------
-        // Validate vehicle number
-        // ----------------------------------------
 
         if (!isValidVehicleNo(number)) {
 
             showAlert(
                 "🚗",
                 "Invalid Vehicle Number",
-                "Please enter a valid vehicle number.\n\nExample: WB68A1234",
-                "error"
+                "Please enter a valid vehicle number.\n\nExample: WB68A1234"
             );
 
             vehicleNo.focus();
-
             return;
 
         }
 
+        vehicleNo.value = number;
 
-        // ----------------------------------------
-        // Update input with formatted number
-        // ----------------------------------------
+        currentVehicleNumber = number;
 
-        vehicleNo.value =
-            number;
+        searchRunning = true;
 
+        const requestId = ++searchRequestId;
 
-        // ----------------------------------------
-        // Start search
-        // ----------------------------------------
-
-        searchRunning =
-            true;
-
-
-        searchBtn.disabled =
-            true;
-
-
-        searchBtn.textContent =
-            "Searching...";
-
+        searchBtn.disabled = true;
+        searchBtn.textContent = "Searching...";
 
         hideAll();
-
         setLoading(true);
 
-
-        // ----------------------------------------
-        // Abort previous request
-        // ----------------------------------------
-
         if (searchController) {
-
             searchController.abort();
-
         }
 
-
-        searchController =
-            new AbortController();
-
+        searchController = new AbortController();
 
         try {
 
-            const url =
-                buildSearchURL(
-                    number
-                );
+            const result = await fetchAPI(
+                buildSearchParams(number),
+                searchController.signal
+            );
 
-
-            // ----------------------------------------
-            // API REQUEST
-            // ----------------------------------------
-
-            const response =
-                await fetch(
-                    url,
-                    {
-                        method: "GET",
-                        cache: "no-store",
-                        signal:
-                            searchController.signal
-                    }
-                );
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    `Server error (${response.status})`
-                );
-
+            // Ignore stale responses.
+            if (requestId !== searchRequestId) {
+                return;
             }
-
-
-            // ----------------------------------------
-            // READ JSON
-            // ----------------------------------------
-
-            const result =
-                await response.json();
-
-
-            // ----------------------------------------
-            // API ERROR
-            // ----------------------------------------
 
             if (!result || !result.success) {
 
-                alert(
-                    result &&
-                    result.message
-                        ? result.message
-                        : "Vehicle search failed."
+                throw new Error(
+                    result?.message || "Vehicle search failed."
                 );
-
-                return;
 
             }
 
-
-            // ----------------------------------------
-            // VEHICLE FOUND
-            // ----------------------------------------
+            // ----------------------------------
+            // VEHICLE ALREADY COLLECTED
+            // ----------------------------------
 
             if (result.found) {
 
@@ -655,7 +706,7 @@ if (backDashboardBtn) {
 
                 if (aAmount) {
                     aAmount.textContent =
-                        result.amount || "";
+                        formatCurrency(result.amount);
                 }
 
                 if (aCollector) {
@@ -663,553 +714,373 @@ if (backDashboardBtn) {
                         result.collectorName || "";
                 }
 
-
-                // ------------------------------------
-                // DATE
-                // ------------------------------------
-
                 if (aDate) {
-
-                    const parsedDate =
-                        new Date(
-                            result.date
-                        );
-
-
-                    if (
-                        !Number.isNaN(
-                            parsedDate.getTime()
-                        )
-                    ) {
-
-                        aDate.textContent =
-                            parsedDate.toLocaleDateString(
-                                "en-IN",
-                                {
-                                    day:
-                                        "2-digit",
-
-                                    month:
-                                        "short",
-
-                                    year:
-                                        "numeric"
-                                }
-                            );
-
-                    }
-
-                    else {
-
-                        aDate.textContent =
-                            result.date || "";
-
-                    }
-
+                    aDate.textContent =
+                        formatDate(result.date);
                 }
-
 
                 if (alreadyCollected) {
-
-                    alreadyCollected.classList.remove(
-                        "hidden"
-                    );
-
+                    alreadyCollected.classList.remove("hidden");
                 }
 
                 return;
 
             }
 
-
-            // ----------------------------------------
-            // VEHICLE NOT FOUND
-            // ----------------------------------------
+            // ----------------------------------
+            // VEHICLE NOT COLLECTED
+            // ----------------------------------
 
             if (vehicleType) {
-
                 vehicleType.value =
                     result.vehicleType || "";
-
             }
-
 
             if (amount) {
-
-                amount.value =
-                    "";
-
+                amount.value = "";
             }
-
 
             if (date) {
-
-                date.value =
-                    today();
-
+                date.value = today();
             }
-
 
             if (collectionForm) {
-
-                collectionForm.classList.remove(
-                    "hidden"
-                );
-
+                collectionForm.classList.remove("hidden");
             }
 
-        }
+        } catch (error) {
 
-        catch (err) {
-
-            // ----------------------------------------
-            // Ignore aborted request
-            // ----------------------------------------
-
-            if (
-                err &&
-                err.name ===
-                    "AbortError"
-            ) {
-
+            if (error.name === "AbortError") {
                 return;
-
             }
-
 
             console.error(
                 "Vehicle search error:",
-                err
+                error
             );
 
-
-            alert(
-                err &&
-                err.message
-                    ? err.message
-                    : "Unable to search vehicle."
+            showAlert(
+                "⚠️",
+                "Search Failed",
+                error.message || "Unable to search vehicle."
             );
 
-        }
+        } finally {
 
-        finally {
+            if (requestId === searchRequestId) {
 
-            setLoading(false);
+                searchRunning = false;
+                searchController = null;
 
+                setLoading(false);
 
-            searchRunning =
-                false;
+                searchBtn.disabled = false;
+                searchBtn.textContent = "Search";
 
-
-            searchController =
-                null;
-
-
-            searchBtn.disabled =
-                false;
-
-
-            searchBtn.textContent =
-                "Search";
+            }
 
         }
 
     }
 
 
-    // ============================================================
+    // ======================================
     // SAVE ROAD COLLECTION
-    // ============================================================
+    // ======================================
 
     async function saveCollection() {
 
-        // ----------------------------------------
-        // Prevent duplicate save
-        // ----------------------------------------
-
-        if (saveRunning) {
-
+        if (!roadCollectionAllowed) {
+            showRestrictionMessage();
             return;
-
         }
 
+        if (saveRunning || searchRunning) {
+            return;
+        }
 
         const number =
-            formatVehicleNo(
-                vehicleNo.value
-            );
+            formatVehicleNo(vehicleNo.value);
 
+        if (!number || !isValidVehicleNo(number)) {
 
-        // ----------------------------------------
-        // VALIDATE VEHICLE NUMBER
-        // ----------------------------------------
-
-        if (!number) {
-
-            alert(
-                "Enter Vehicle Number"
+            showAlert(
+                "🚗",
+                "Invalid Vehicle Number",
+                "Please enter a valid vehicle number."
             );
 
             vehicleNo.focus();
-
             return;
 
         }
 
+        if (!vehicleType || !vehicleType.value.trim()) {
 
-        if (!isValidVehicleNo(number)) {
-
-            alert(
-                "Invalid Vehicle Number\n\nExample:\nWB68A1234"
+            showAlert(
+                "⚠️",
+                "Vehicle Type Required",
+                "Please select a vehicle type."
             );
 
-            vehicleNo.focus();
-
+            vehicleType?.focus();
             return;
 
         }
 
-
-        // ----------------------------------------
-        // VEHICLE TYPE
-        // ----------------------------------------
-
-        if (
-            !vehicleType ||
-            vehicleType.value === ""
-        ) {
-
-            alert(
-                "Select Vehicle Type"
-            );
-
-            vehicleType.focus();
-
-            return;
-
-        }
-
-
-        // ----------------------------------------
-        // AMOUNT
-        // ----------------------------------------
+        const enteredAmount = Number(amount?.value);
 
         if (
             !amount ||
-            amount.value === ""
+            amount.value.trim() === "" ||
+            !Number.isFinite(enteredAmount) ||
+            enteredAmount <= 0
         ) {
 
-            alert(
-                "Enter Amount"
+            showAlert(
+                "⚠️",
+                "Invalid Amount",
+                "Please enter a valid amount greater than zero."
             );
 
-            amount.focus();
+            amount?.focus();
+            return;
+
+        }
+
+        if (!date || !date.value) {
+
+            showAlert(
+                "⚠️",
+                "Date Required",
+                "Please select the collection date."
+            );
+
+            date?.focus();
+            return;
+
+        }
+
+        if (number !== currentVehicleNumber) {
+
+            showAlert(
+                "⚠️",
+                "Vehicle Not Verified",
+                "Please search the vehicle again before saving."
+            );
 
             return;
 
         }
 
+        const collector = getCollectorDetails();
 
-        // ----------------------------------------
-        // START SAVE
-        // ----------------------------------------
+        if (!collector.collectorId || !collector.collectorName) {
 
-        saveRunning =
-            true;
+            showAlert(
+                "⚠️",
+                "Login Information Missing",
+                "Your collector information is missing. Please login again."
+            );
 
-
-        saveBtn.disabled =
-            true;
-
-
-        saveBtn.textContent =
-            "Saving...";
-
-
-        // ----------------------------------------
-        // CANCEL PREVIOUS SAVE
-        // ----------------------------------------
-
-        if (saveController) {
-
-            saveController.abort();
+            return;
 
         }
 
+        saveRunning = true;
 
-        saveController =
-            new AbortController();
-
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
 
         try {
 
-            const url =
-                buildSaveURL(
-                    number
-                );
+            // IMPORTANT:
+            // Do not abort a save request.
+            // The server may still complete the transaction
+            // even if the browser stops waiting for the response.
 
+            const result = await fetchAPI(
+                buildSaveParams(number)
+            );
 
-            const response =
-                await fetch(
-                    url,
-                    {
-                        method: "GET",
-                        cache: "no-store",
-                        signal:
-                            saveController.signal
-                    }
-                );
+            if (!result || !result.success) {
 
+                if (result?.duplicate) {
 
-            if (!response.ok) {
+                    showAlert(
+                        "ℹ️",
+                        "Already Collected",
+                        result.message ||
+                            "This vehicle has already been collected."
+                    );
 
-                throw new Error(
-                    `Server error (${response.status})`
-                );
+                } else {
 
-            }
-
-
-            const result =
-                await response.json();
-
-
-            // ----------------------------------------
-            // SUCCESS
-            // ----------------------------------------
-
-            if (result.success) {
-
-                hideAll();
-
-
-                if (mCollectionId) {
-
-                    mCollectionId.textContent =
-                        result.collectionId || "";
-
-                }
-
-
-                if (mVehicle) {
-
-                    mVehicle.textContent =
-                        number;
-
-                }
-
-
-                if (mAmount) {
-
-                    mAmount.textContent =
-                        amount.value;
-
-                }
-
-
-                if (message) {
-
-                    message.classList.remove(
-                        "hidden"
+                    showAlert(
+                        "⚠️",
+                        "Save Failed",
+                        result?.message ||
+                            "Collection could not be saved."
                     );
 
                 }
-
-            }
-
-            else {
-
-                alert(
-                    result.message ||
-                    "Collection could not be saved."
-                );
-
-            }
-
-        }
-
-        catch (err) {
-
-            if (
-                err &&
-                err.name ===
-                    "AbortError"
-            ) {
 
                 return;
 
             }
 
+            // ----------------------------------
+            // SAVE SUCCESS
+            // ----------------------------------
+
+            hideAll();
+
+            if (mCollectionId) {
+                mCollectionId.textContent =
+                    result.collectionId || "";
+            }
+
+            if (mVehicle) {
+                mVehicle.textContent = number;
+            }
+
+            if (mAmount) {
+                mAmount.textContent =
+                    formatCurrency(enteredAmount);
+            }
+
+            if (message) {
+                message.classList.remove("hidden");
+            }
+
+        } catch (error) {
 
             console.error(
-                "Save collection error:",
-                err
+                "Road Collection save error:",
+                error
             );
 
-
-            alert(
-                err &&
-                err.message
-                    ? err.message
-                    : "Unable to save collection."
+            // A network failure does not prove that the
+            // server failed to save the record.
+            showAlert(
+                "⚠️",
+                "Save Status Unconfirmed",
+                "The server response could not be received. " +
+                "Do not submit again immediately. Search this vehicle " +
+                "to check whether the collection was recorded."
             );
 
-        }
+        } finally {
 
-        finally {
+            saveRunning = false;
 
-            saveRunning =
-                false;
-
-
-            saveController =
-                null;
-
-
-            saveBtn.disabled =
-                false;
-
-
-            saveBtn.textContent =
-                "Save Collection";
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Collection";
 
         }
 
     }
 
 
-    // ============================================================
+    // ======================================
     // EVENT LISTENERS
-    // ============================================================
+    // ======================================
 
     searchBtn.addEventListener(
         "click",
         searchVehicle
     );
 
+    searchAgainBtn?.addEventListener(
+        "click",
+        resetForm
+    );
 
-    if (searchAgainBtn) {
+    saveBtn?.addEventListener(
+        "click",
+        saveCollection
+    );
 
-        searchAgainBtn.addEventListener(
-            "click",
-            resetForm
-        );
-
-    }
-
-
-    if (saveBtn) {
-
-        saveBtn.addEventListener(
-            "click",
-            saveCollection
-        );
-
-    }
+    nextBtn?.addEventListener(
+        "click",
+        resetForm
+    );
 
 
-    if (nextBtn) {
-
-        nextBtn.addEventListener(
-            "click",
-            resetForm
-        );
-
-    }
-
-
-    // ============================================================
+    // ======================================
     // ENTER KEY SEARCH
-    // ============================================================
+    // ======================================
 
-    vehicleNo.addEventListener(
-        "keydown",
-        event => {
+    vehicleNo.addEventListener("keydown", event => {
 
-            if (
-                event.key ===
-                "Enter"
-            ) {
+        if (event.key === "Enter") {
 
-                event.preventDefault();
+            event.preventDefault();
 
-
-                if (!searchRunning) {
-
-                    searchVehicle();
-
-                }
-
+            if (!searchRunning && !saveRunning) {
+                searchVehicle();
             }
 
         }
-    );
+
+    });
 
 
-    // ============================================================
+    // ======================================
     // AUTO FORMAT VEHICLE NUMBER
-    // ============================================================
+    // ======================================
 
-    vehicleNo.addEventListener(
-        "blur",
-        () => {
+    vehicleNo.addEventListener("blur", () => {
 
-            const formatted =
-                formatVehicleNo(
-                    vehicleNo.value
-                );
+        vehicleNo.value =
+            formatVehicleNo(vehicleNo.value);
+
+    });
 
 
-            if (
-                vehicleNo.value !==
-                formatted
-            ) {
-
-                vehicleNo.value =
-                    formatted;
-
-            }
-
-        }
-    );
-
-
-    // ============================================================
+    // ======================================
     // PAGE INITIALIZATION
-    // ============================================================
+    // ======================================
 
     hideAll();
 
-
     if (date) {
+        date.value = today();
+    }
 
-        date.value =
-            today();
+    vehicleNo.setAttribute("autocomplete", "off");
+    vehicleNo.setAttribute("spellcheck", "false");
+
+    // Preserve the dashboard-selected filters.
+    sessionStorage.setItem("selectedYear", selectedYear);
+    sessionStorage.setItem("selectedPuja", selectedPuja);
+
+    // Validate the selected context before enabling the page.
+    if (!/^\d{4}$/.test(selectedYear)) {
+
+        showAlert(
+            "⚠️",
+            "Invalid Year",
+            "Please return to the dashboard and select a valid year."
+        );
+
+        vehicleNo.disabled = true;
+        searchBtn.disabled = true;
+
+        return;
 
     }
 
+    if (!roadCollectionAllowed) {
 
-    // Prevent browser autocomplete
-    vehicleNo.setAttribute(
-        "autocomplete",
-        "off"
-    );
+        showRestrictionMessage();
 
+        return;
 
-    // Prevent spell checking
-    vehicleNo.setAttribute(
-        "spellcheck",
-        "false"
-    );
+    }
 
-
-    // Focus vehicle number
-    requestAnimationFrame(
-        () => {
-
-            vehicleNo.focus();
-
-        }
-    );
+    requestAnimationFrame(() => {
+        vehicleNo.focus();
+    });
 
 });
