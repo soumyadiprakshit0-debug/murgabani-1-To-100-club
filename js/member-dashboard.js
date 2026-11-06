@@ -1,39 +1,35 @@
+
 // ======================================
-// MURGABANI CLUB
-// Member Dashboard
+// MURGABANI 1 TO 100 CLUB
+// OPTIMIZED MEMBER DASHBOARD
 // ======================================
 
-// ==========================
-// Disable Browser Back Button
-// ==========================
-/*history.pushState(null, null, location.href);
+"use strict";
 
-window.addEventListener("popstate", () => {
-    history.pushState(null, null, location.href);
-});*/
+// ======================================
+// CONFIGURATION
+// ======================================
 
-// NEW WEB APP URL
 const API_URL =
-"https://script.google.com/macros/s/AKfycbxVNrYgPMqWGibcTQyFth5aPYwJmP4cbeW29sUZaAUjeBtD3Ap_T6ztRBqO_eYAqW1D/exec";
+    "https://script.google.com/macros/s/AKfycbxVNrYgPMqWGibcTQyFth5aPYwJmP4cbeW29sUZaAUjeBtD3Ap_T6ztRBqO_eYAqW1D/exec";
 
-// ==========================
-// INTERNAL PAGE NAVIGATION
-// ==========================
-function navigateTo(page) {
+const PUJAS = [
+    "Saraswati puja",
+    "Laxmi puja"
+];
 
-    const url = new URL(
-        page,
-        window.location.href
-    );
+const STORAGE_KEYS = {
+    year: "selectedYear",
+    puja: "selectedPuja",
+    returnDashboard: "returnDashboard"
+};
 
-    // Prevent Acode/WebView from showing cached old page
-    url.searchParams.set("_", Date.now());
-
-    // Force a completely new document
-    window.location.replace(url.href);
-}
+// ======================================
+// DOM ELEMENTS
+// ======================================
 
 const welcome = document.getElementById("welcome");
+
 const yearSelect = document.getElementById("year");
 const pujaSelect = document.getElementById("puja");
 
@@ -59,18 +55,138 @@ const loaderPercent =
 const loaderProgressBar =
     document.getElementById("loaderProgressBar");
 
+const roadCollectionBtn =
+    document.getElementById("roadCollectionBtn");
+
+// ======================================
+// DASHBOARD STATE
+// ======================================
+
+let dashboardRequestId = 0;
 let dashboardLoaderTimer = null;
+let dashboardLoaderHideTimer = null;
 let dashboardLoaderProgress = 0;
 
-// Welcome
-welcome.textContent =
-"Welcome, " + (sessionStorage.getItem("memberName") || "Member");
+let currentYear = "";
+let currentPuja = "";
 
-// Loading
+let isDashboardReady = false;
+
+// ======================================
+// MEMBER AUTHENTICATION
+// ======================================
+
+const memberRole =
+    (sessionStorage.getItem("memberRole") || "")
+        .toLowerCase();
+
+const loggedIn =
+    sessionStorage.getItem("loggedIn");
+
+if (
+    loggedIn !== "true" ||
+    (memberRole && memberRole !== "member")
+) {
+    sessionStorage.clear();
+    window.location.replace("login.html");
+}
+
+// ======================================
+// WELCOME MESSAGE
+// ======================================
+
+if (welcome) {
+    welcome.textContent =
+        "Welcome, " +
+        (sessionStorage.getItem("memberName") || "Member");
+}
+
+// ======================================
+// DATE AND DEFAULT PUJA
+// ======================================
+
+function getIndiaDate() {
+
+    const parts = new Intl.DateTimeFormat(
+        "en-CA",
+        {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }
+    ).formatToParts(new Date());
+
+    const result = {};
+
+    parts.forEach(part => {
+        result[part.type] = part.value;
+    });
+
+    return {
+        year: Number(result.year),
+        month: Number(result.month),
+        day: Number(result.day)
+    };
+}
+
+
+function getDefaultPuja() {
+
+    const date = getIndiaDate();
+
+    return (
+        date.month <= 5
+            ? "Saraswati puja"
+            : "Laxmi puja"
+    );
+}
+
+
+// ======================================
+// NAVIGATION HELPER
+// ======================================
+
+function navigateTo(page, params = {}) {
+
+    const url = new URL(
+        page,
+        window.location.href
+    );
+
+    Object.entries(params).forEach(([key, value]) => {
+
+        if (value !== undefined && value !== null && value !== "") {
+            url.searchParams.set(key, value);
+        }
+
+    });
+
+    // Prevent cached old pages in browser/WebView.
+    url.searchParams.set("_", Date.now());
+
+    window.location.replace(url.href);
+}
+
+
+// ======================================
+// LOADING CONTROL
+// ======================================
+
 function showLoading(show) {
-    loading.style.display = show ? "block" : "none";
-  yearSelect.disabled = show;
-    pujaSelect.disabled = show;
+
+    if (loading) {
+        loading.style.display = show ? "block" : "none";
+    }
+
+    if (yearSelect) {
+        yearSelect.disabled = show;
+    }
+
+    if (pujaSelect) {
+        pujaSelect.disabled = show;
+    }
+
 }
 
 
@@ -78,9 +194,45 @@ function showLoading(show) {
 // PREMIUM DASHBOARD LOADER
 // ======================================
 
-function showDashboardLoader(){
+function updateDashboardLoader(percent) {
 
-    if(!dashboardLoader) return;
+    const safePercent = Math.max(
+        0,
+        Math.min(100, Math.round(percent))
+    );
+
+    if (loaderPercent) {
+        loaderPercent.textContent =
+            safePercent + "%";
+    }
+
+    if (loaderProgressBar) {
+        loaderProgressBar.style.width =
+            safePercent + "%";
+    }
+
+}
+
+
+function updateDashboardLoaderStatus(title, status) {
+
+    if (loaderTitle) {
+        loaderTitle.textContent = title;
+    }
+
+    if (loaderStatus) {
+        loaderStatus.textContent = status;
+    }
+
+}
+
+
+function showDashboardLoader() {
+
+    if (!dashboardLoader) return;
+
+    clearInterval(dashboardLoaderTimer);
+    clearTimeout(dashboardLoaderHideTimer);
 
     dashboardLoader.classList.remove("hidden");
 
@@ -90,79 +242,29 @@ function showDashboardLoader(){
 
     updateDashboardLoaderStatus(
         "Member Dashboard",
-        "Verifying your membership..."
+        "Connecting to club database..."
     );
+
+    dashboardLoaderTimer = setInterval(() => {
+
+        // Smooth progress without randomly reaching 100%.
+        dashboardLoaderProgress = Math.min(
+            dashboardLoaderProgress + 3,
+            90
+        );
+
+        updateDashboardLoader(
+            dashboardLoaderProgress
+        );
+
+    }, 120);
+
+}
+
+
+function hideDashboardLoader() {
 
     clearInterval(dashboardLoaderTimer);
-
-    dashboardLoaderTimer =
-        setInterval(() => {
-
-            dashboardLoaderProgress +=
-                Math.floor(Math.random() * 6) + 2;
-
-            // Don't automatically reach 100%
-            if(dashboardLoaderProgress >= 95){
-
-                dashboardLoaderProgress = 95;
-
-            }
-
-            updateDashboardLoader(
-                dashboardLoaderProgress
-            );
-
-        },180);
-
-}
-
-
-function updateDashboardLoader(percent){
-
-    if(loaderPercent){
-
-        loaderPercent.textContent =
-            percent + "%";
-
-    }
-
-    if(loaderProgressBar){
-
-        loaderProgressBar.style.width =
-            percent + "%";
-
-    }
-
-}
-
-
-function updateDashboardLoaderStatus(
-    title,
-    status
-){
-
-    if(loaderTitle){
-
-        loaderTitle.textContent =
-            title;
-
-    }
-
-    if(loaderStatus){
-
-        loaderStatus.textContent =
-            status;
-
-    }
-
-}
-
-
-function hideDashboardLoader(){
-
-    clearInterval(
-        dashboardLoaderTimer
-    );
 
     updateDashboardLoader(100);
 
@@ -171,530 +273,733 @@ function hideDashboardLoader(){
         "Welcome to MURGABANI MIS"
     );
 
-    setTimeout(() => {
+    dashboardLoaderHideTimer = setTimeout(() => {
 
-        if(dashboardLoader){
-
-            dashboardLoader.classList.add(
-                "hidden"
-            );
-
+        if (dashboardLoader) {
+            dashboardLoader.classList.add("hidden");
         }
 
-    },450);
+    }, 350);
 
 }
 
-// Load Dashboard (Fast)
+
+// ======================================
+// API HELPER
+// ======================================
+
+async function fetchAPI(params) {
+
+    const url = new URL(API_URL);
+
+    Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+    });
+
+    const response = await fetch(url.toString(), {
+        method: "GET",
+        cache: "no-store"
+    });
+
+    if (!response.ok) {
+        throw new Error(
+            "Server response error: " + response.status
+        );
+    }
+
+    return await response.json();
+
+}
+
+
+// ======================================
+// FORMAT CURRENCY
+// ======================================
+
+function formatCurrency(value) {
+
+    const amount = Number(value) || 0;
+
+    return (
+        "₹" +
+        amount.toLocaleString("en-IN", {
+            maximumFractionDigits: 2
+        })
+    );
+
+}
+
+
+// ======================================
+// UPDATE DASHBOARD CARDS
+// ======================================
+
+function updateDashboardCards(data) {
+
+    if (!data) return;
+
+    if (members) {
+        members.textContent =
+            Number(data.members) || 0;
+    }
+
+    if (collection) {
+        collection.textContent =
+            formatCurrency(data.collection);
+    }
+
+    if (expenses) {
+        expenses.textContent =
+            formatCurrency(data.expense);
+    }
+
+    if (balance) {
+
+        const amount = Number(data.balance) || 0;
+
+        balance.textContent =
+            formatCurrency(amount);
+
+        balance.style.color =
+            amount >= 0
+                ? "#16a34a"
+                : "#dc2626";
+
+    }
+
+}
+
+
+// ======================================
+// SAVE SELECTED FILTERS
+// ======================================
+
+function saveSelectedFilters() {
+
+    if (!yearSelect || !pujaSelect) return;
+
+    currentYear = yearSelect.value;
+    currentPuja = pujaSelect.value;
+
+    sessionStorage.setItem(
+        STORAGE_KEYS.year,
+        currentYear
+    );
+
+    sessionStorage.setItem(
+        STORAGE_KEYS.puja,
+        currentPuja
+    );
+
+}
+
+
+// ======================================
+// POPULATE YEAR DROPDOWN
+// ======================================
+
+function populateYears(years) {
+
+    if (!yearSelect) return;
+
+    yearSelect.innerHTML = "";
+
+    const uniqueYears = [
+        ...new Set(
+            (years || [])
+                .map(year => String(year))
+                .filter(year => /^\d{4}$/.test(year))
+        )
+    ].sort((a, b) => Number(b) - Number(a));
+
+    uniqueYears.forEach(year => {
+
+        const option = document.createElement("option");
+
+        option.value = year;
+        option.textContent = year;
+
+        yearSelect.appendChild(option);
+
+    });
+
+}
+
+
+// ======================================
+// POPULATE PUJA DROPDOWN
+// ======================================
+
+function populatePujas(selectedPuja) {
+
+    if (!pujaSelect) return;
+
+    pujaSelect.innerHTML = "";
+
+    PUJAS.forEach(puja => {
+
+        const option = document.createElement("option");
+
+        option.value = puja;
+        option.textContent = puja;
+
+        pujaSelect.appendChild(option);
+
+    });
+
+    pujaSelect.value =
+        PUJAS.includes(selectedPuja)
+            ? selectedPuja
+            : getDefaultPuja();
+
+}
+
+
+// ======================================
+// ROAD COLLECTION AVAILABILITY
+// ======================================
+
+function updateRoadCollectionButton() {
+
+    if (!roadCollectionBtn || !pujaSelect) return;
+
+    const isAvailable =
+        pujaSelect.value === "Saraswati puja";
+
+    roadCollectionBtn.disabled = !isAvailable;
+
+    roadCollectionBtn.setAttribute(
+        "aria-disabled",
+        String(!isAvailable)
+    );
+
+    roadCollectionBtn.title = isAvailable
+        ? "Open Road Collection"
+        : "Road Collection is available only during Saraswati Puja";
+
+}
+
+
+// ======================================
+// LOAD DASHBOARD DATA
+// ======================================
+
+async function loadDashboard(options = {}) {
+
+    if (!yearSelect || !pujaSelect) return;
+
+    const year = yearSelect.value;
+    const puja = pujaSelect.value;
+
+    if (!year || !PUJAS.includes(puja)) {
+        return;
+    }
+
+    saveSelectedFilters();
+
+    updateRoadCollectionButton();
+
+    const requestId = ++dashboardRequestId;
+
+    if (!options.silent) {
+        showLoading(true);
+    }
+
+    try {
+
+        const data = await fetchAPI({
+            action: "dashboard",
+            year,
+            puja
+        });
+
+        // Ignore old responses when a newer filter request exists.
+        if (requestId !== dashboardRequestId) {
+            return;
+        }
+
+        if (!data || !data.success) {
+            throw new Error(
+                data?.message || "Dashboard data unavailable."
+            );
+        }
+
+        updateDashboardCards(data);
+
+    } catch (error) {
+
+        if (requestId === dashboardRequestId) {
+
+            console.error(
+                "Dashboard loading error:",
+                error
+            );
+
+            if (!options.silent) {
+                alert(
+                    "Unable to load dashboard data. Please try again."
+                );
+            }
+
+        }
+
+    } finally {
+
+        if (requestId === dashboardRequestId) {
+            showLoading(false);
+        }
+
+    }
+
+}
+
+
+// ======================================
+// INITIALIZE DASHBOARD
+// ======================================
+
 async function loadDashboardInit() {
 
     showDashboardLoader();
-
     showLoading(true);
 
     updateDashboardLoaderStatus(
         "Member Dashboard",
-        "Connecting to club database..."
+        "Fetching dashboard information..."
     );
 
     try {
 
-        const response =
-            await fetch(
-                API_URL +
-                "?action=dashboardInit"
+        const data = await fetchAPI({
+            action: "dashboardInit"
+        });
+
+        if (!data || !data.success) {
+            throw new Error(
+                data?.message || "Unable to initialize dashboard."
             );
-
-        updateDashboardLoaderStatus(
-            "Loading Club Data...",
-            "Fetching dashboard information..."
-        );
-
-        const data =
-            await response.json();
-
-        if (!data.success) {
-
-            alert(
-                "Unable to load dashboard."
-            );
-
-            return;
-
         }
 
-        // ==================================
-        // YEARS
-        // ==================================
-
-        yearSelect.innerHTML = "";
-
-        data.years.forEach(year => {
-
-            yearSelect.innerHTML +=
-                `<option value="${year}">
-                    ${year}
-                </option>`;
-
-        });
+        // Populate year options.
+        populateYears(data.years);
 
         const savedYear =
-            sessionStorage.getItem(
-                "selectedYear"
-            );
-
-        yearSelect.value =
-            savedYear ||
-            data.selectedYear;
-
-
-        // ==================================
-        // PUJAS
-        // ==================================
-
-        updateDashboardLoaderStatus(
-            "Preparing Filters...",
-            "Loading Puja information..."
-        );
-
-        pujaSelect.innerHTML = "";
-
-        data.pujas.forEach(puja => {
-
-            pujaSelect.innerHTML +=
-                `<option value="${puja}">
-                    ${puja}
-                </option>`;
-
-        });
+            sessionStorage.getItem(STORAGE_KEYS.year);
 
         const savedPuja =
-            sessionStorage.getItem(
-                "selectedPuja"
+            sessionStorage.getItem(STORAGE_KEYS.puja);
+
+        const yearExists =
+            savedYear &&
+            Array.from(yearSelect.options).some(
+                option => option.value === savedYear
             );
 
-        pujaSelect.value =
-            savedPuja ||
-            data.selectedPuja;
+        const selectedYear =
+            yearExists
+                ? savedYear
+                : String(data.selectedYear);
 
+        yearSelect.value = selectedYear;
 
-        // ==================================
-        // DASHBOARD CARDS
-        // ==================================
+        // Restore the saved Puja only when the saved Year is valid.
+        const selectedPuja =
+            yearExists && PUJAS.includes(savedPuja)
+                ? savedPuja
+                : (
+                    selectedYear === String(data.selectedYear)
+                        ? data.selectedPuja
+                        : getDefaultPuja()
+                );
+
+        populatePujas(selectedPuja);
+
+        saveSelectedFilters();
+
+        updateRoadCollectionButton();
 
         updateDashboardLoaderStatus(
             "Preparing Dashboard...",
-            "Updating financial overview..."
+            "Loading financial overview..."
         );
 
-        members.textContent =
-            data.members;
+        const filtersMatchInit =
+            String(data.selectedYear) === yearSelect.value &&
+            data.selectedPuja === pujaSelect.value;
 
-        collection.textContent =
-            "₹" +
-            Number(
-                data.collection
-            ).toLocaleString("en-IN");
+        // Use initialization response if it already matches
+        // the selected filters. Otherwise fetch the exact pair.
+        if (filtersMatchInit) {
 
-        expenses.textContent =
-            "₹" +
-            Number(
-                data.expense
-            ).toLocaleString("en-IN");
+            updateDashboardCards(data);
 
-        balance.textContent =
-            "₹" +
-            Number(
-                data.balance
-            ).toLocaleString("en-IN");
+        } else {
 
-        balance.style.color =
-            Number(data.balance) >= 0
-                ? "#16a34a"
-                : "#dc2626";
+            await loadDashboard({
+                silent: true
+            });
 
+        }
 
-                // ==================================
-        // LOAD DATA FOR RESTORED FILTERS
-        // ==================================
+        isDashboardReady = true;
 
-      //await loadDashboard();
+    } catch (error) {
 
-    } catch (err) {
-
-        console.error(err);
+        console.error(
+            "Dashboard initialization error:",
+            error
+        );
 
         alert(
-            "Unable to load dashboard."
+            "Unable to load dashboard. Please refresh the page."
         );
 
     } finally {
 
         showLoading(false);
-
         hideDashboardLoader();
 
     }
 
 }
 
-// Reload Dashboard when filter changes
-async function loadDashboard() {
 
-    showLoading(true);
+// ======================================
+// YEAR CHANGE
+// ======================================
 
-  // Save selected filters globally
-sessionStorage.setItem("selectedYear", yearSelect.value);
-sessionStorage.setItem("selectedPuja", pujaSelect.value);
+yearSelect?.addEventListener("change", async () => {
 
-    try {
+    const newYear = yearSelect.value;
 
-        const response = await fetch(
-            API_URL +
-            "?action=dashboard" +
-            "&year=" + encodeURIComponent(yearSelect.value) +
-            "&puja=" + encodeURIComponent(pujaSelect.value)
-        );
+    if (!newYear) return;
 
-        const data = await response.json();
+    // On changing Year, select the date-based default Puja.
+    populatePujas(getDefaultPuja());
 
-        if (data.success) {
+    saveSelectedFilters();
 
-            members.textContent = data.members;
-         collection.textContent =
-"₹" + Number(data.collection).toLocaleString("en-IN");
+    updateRoadCollectionButton();
 
-expenses.textContent =
-"₹" + Number(data.expense).toLocaleString("en-IN");
-
-balance.textContent =
-"₹" + Number(data.balance).toLocaleString("en-IN"); 
-          balance.style.color =
-Number(data.balance) >= 0
-? "#16a34a"
-: "#dc2626";
-
-        }
-
-    } catch (err) {
-
-        console.error(err);
-
-    }
-
-    showLoading(false);
-}
-
-// Change Year
-yearSelect.addEventListener("change", async () => {
-
-    showLoading(true);
-
-    try {
-
-        const response = await fetch(
-            API_URL +
-            "?action=pujas&year=" +
-            encodeURIComponent(yearSelect.value)
-        );
-
-        const pujas = await response.json();
-
-        pujaSelect.innerHTML = "";
-
-pujas.forEach(puja => {
-
-    pujaSelect.innerHTML +=
-        `<option value="${puja}">${puja}</option>`;
+    await loadDashboard();
 
 });
 
-// Save the new year and the newly selected puja
-sessionStorage.setItem(
-    "selectedYear",
-    yearSelect.value
-);
 
-sessionStorage.setItem(
-    "selectedPuja",
-    pujaSelect.value
-);
+// ======================================
+// PUJA CHANGE
+// ======================================
 
-await loadDashboard();
+pujaSelect?.addEventListener("change", async () => {
 
-    } catch (err) {
+    saveSelectedFilters();
 
-        console.error(err);
+    updateRoadCollectionButton();
 
-    }
-
-    showLoading(false);
+    await loadDashboard();
 
 });
 
-// Change Puja
-pujaSelect.addEventListener("change", loadDashboard);
 
-// Start
-loadDashboardInit();
+// ======================================
+// COMING SOON MODAL
+// ======================================
 
-function showComingSoon(icon,title){
+function showComingSoon(icon, title) {
 
-    document.getElementById("modalIcon").textContent=icon;
+    const modalIcon =
+        document.getElementById("modalIcon");
 
-    document.getElementById("modalTitle").textContent=title;
+    const modalTitle =
+        document.getElementById("modalTitle");
 
-    document.getElementById("comingSoonModal").style.display="flex";
+    const modal =
+        document.getElementById("comingSoonModal");
+
+    if (modalIcon) {
+        modalIcon.textContent = icon;
+    }
+
+    if (modalTitle) {
+        modalTitle.textContent = title;
+    }
+
+    if (modal) {
+        modal.style.display = "flex";
+    }
 
 }
 
-function closeModal(){
 
-    document.getElementById("comingSoonModal").style.display="none";
+function closeModal() {
+
+    const modal =
+        document.getElementById("comingSoonModal");
+
+    if (modal) {
+        modal.style.display = "none";
+    }
 
 }
 
 
-
-/* =====================================================
-   CUSTOM COLLECTION PAGE NAVIGATION
-   ===================================================== */
+// ======================================
+// COLLECTION PAGE NAVIGATION
+// ======================================
 
 function openCollectionPage(page) {
-    const yearSelect = document.getElementById("year");
-    const pujaSelect = document.getElementById("puja");
 
-    const year = yearSelect?.value || sessionStorage.getItem("selectedYear") || "";
-    const puja = pujaSelect?.value || sessionStorage.getItem("selectedPuja") || "";
+    const year = yearSelect?.value ||
+        sessionStorage.getItem(STORAGE_KEYS.year);
+
+    const puja = pujaSelect?.value ||
+        sessionStorage.getItem(STORAGE_KEYS.puja);
 
     if (!year || !puja) {
-        alert("Please select a year and Puja before opening this page.");
+
+        alert(
+            "Please select a Year and Puja first."
+        );
+
         return;
     }
 
-    // Preserve the dashboard filters.
-    sessionStorage.setItem("selectedYear", year);
-    sessionStorage.setItem("selectedPuja", puja);
+    saveSelectedFilters();
 
-    // Preserve the correct return destination.
-    const isAdminDashboard =
-        window.location.pathname.toLowerCase().endsWith("admin-dashboard.html");
+    sessionStorage.setItem(
+        STORAGE_KEYS.returnDashboard,
+        "member-dashboard.html"
+    );
 
-    const dashboardPage = isAdminDashboard
-        ? "admin-dashboard.html"
-        : "member-dashboard.html";
+    navigateTo(page, {
+        year,
+        puja
+    });
 
-    sessionStorage.setItem("returnDashboard", dashboardPage);
-
-    // Pass the selected context to the collection page.
-    const url = new URL(page, window.location.href);
-    url.searchParams.set("year", year);
-    url.searchParams.set("puja", puja);
-    url.searchParams.set("_", Date.now());
-
-    window.location.href = url.href;
 }
 
 
-// ==========================
-// Road Collection Button
-// ==========================
-/*document.getElementById("roadCollectionBtn").addEventListener("click", () => {
+// ======================================
+// ROAD COLLECTION BUTTON
+// ======================================
 
-    window.location.assign("road-collection.html");
+roadCollectionBtn?.addEventListener("click", () => {
 
-})/
+    const year = yearSelect?.value;
+    const puja = pujaSelect?.value;
 
+    if (puja !== "Saraswati puja") {
 
-document.getElementById("roadCollectionBtn").addEventListener("click", () => {
-    navigateTo("road-collection.html");
-});*/
+        alert(
+            "Road Collection is available only during Saraswati Puja."
+        );
 
+        return;
+    }
 
-document.getElementById("roadCollectionBtn").addEventListener("click", () => {
+    if (!year) {
 
-    sessionStorage.setItem("returnDashboard", "member-dashboard.html");
+        alert("Please select a Year first.");
 
-    navigateTo("road-collection.html");
+        return;
+    }
 
-});
-
-
-/* Village Collection */
-document.getElementById("villageCollectionBtn")
-    ?.addEventListener("click", () => {
-        openCollectionPage("village-collection.html");
-    });
-
-/* Members Collection */
-document.getElementById("memberCollectionBtn")
-    ?.addEventListener("click", () => {
-        openCollectionPage("members-collection.html");
-    });
-
-/* Expenses */
-document.getElementById("expenseBtn")
-    ?.addEventListener("click", () => {
-        openCollectionPage("expenses.html");
-    });
-
-// ==========================
-// Reports Button
-// ==========================
-/*document.getElementById("reportBtn").addEventListener("click", () => {
-
-    const year = yearSelect.value;
-    const puja = pujaSelect.value;
-
-    sessionStorage.setItem("selectedYear", yearSelect.value);
-sessionStorage.setItem("selectedPuja", pujaSelect.value);
-
-window.location.href = "report.html"
-
-
-
-});*/
-
-/*document.getElementById("reportBtn").addEventListener("click", () => {
-
-    sessionStorage.setItem("selectedYear", yearSelect.value);
-    sessionStorage.setItem("selectedPuja", pujaSelect.value);
-
-    navigateTo("report.html");
-
-});*/
-
-// ==========================
-// Reports Button
-// ==========================
-document.getElementById("reportBtn").addEventListener("click", () => {
-
-    const selectedYear = yearSelect.value;
-    const selectedPuja = pujaSelect.value;
-
-    // Save filters
-    sessionStorage.setItem(
-        "selectedYear",
-        selectedYear
-    );
+    saveSelectedFilters();
 
     sessionStorage.setItem(
-        "selectedPuja",
-        selectedPuja
+        STORAGE_KEYS.returnDashboard,
+        "member-dashboard.html"
     );
 
-sessionStorage.setItem(
-    "reportSource",
-    "member"
-);
-  
-    // Create report URL
-    const reportURL = new URL(
-        "report.html",
-        window.location.href
-    );
-
-    reportURL.searchParams.set(
-        "year",
-        selectedYear
-    );
-
-    reportURL.searchParams.set(
-        "puja",
-        selectedPuja
-    );
-
-    // Cache buster
-    reportURL.searchParams.set(
-        "_",
-        Date.now()
-    );
-
-    // Force new page
-    window.location.replace(
-        reportURL.href
-    );
-
-});
-
-// ==========================
-// Logout Button
-// ==========================
-/*document.getElementById("logoutBtn").addEventListener("click", () => {
-
-    sessionStorage.clear();
-
-    window.location.href = "login.html";
-
-}); */
-
-// ==========================
-// Logout Button
-// ==========================
-document.getElementById("logoutBtn").addEventListener("click", () => {
-
-    sessionStorage.clear();
-
-    window.location.replace("login.html");
-
-});
-
-// ==========================
-// Change Password Button
-// ==========================
-/*document.getElementById("changePasswordBtn").addEventListener("click", () => {
-
-    window.location.href = "change-password.html";
-
-});*/
-
-document.getElementById("changePasswordBtn").addEventListener("click", () => {
-    navigateTo("change-password.html");
-});
-
-// ==========================
-// Analytics Button
-// ==========================
-document.getElementById("analyticsBtn")
-    ?.addEventListener("click", () => {
-        showComingSoon("📈", "Analytics");
+    navigateTo("road-collection.html", {
+        year,
+        puja
     });
 
-// ==========================
-// My History Button
-// ==========================
-const historyBtn = document.getElementById("historyBtn");
+});
 
-if (historyBtn) {
-    historyBtn.addEventListener("click", () => {
 
-        const year = yearSelect.value;
-        const puja = pujaSelect.value;
+// ======================================
+// VILLAGE COLLECTION
+// ======================================
+
+document
+    .getElementById("villageCollectionBtn")
+    ?.addEventListener("click", () => {
+
+        openCollectionPage(
+            "village-collection.html"
+        );
+
+    });
+
+
+// ======================================
+// MEMBERS COLLECTION
+// ======================================
+
+document
+    .getElementById("memberCollectionBtn")
+    ?.addEventListener("click", () => {
+
+        openCollectionPage(
+            "members-collection.html"
+        );
+
+    });
+
+
+// ======================================
+// EXPENSES
+// ======================================
+
+document
+    .getElementById("expenseBtn")
+    ?.addEventListener("click", () => {
+
+        openCollectionPage(
+            "expenses.html"
+        );
+
+    });
+
+
+// ======================================
+// REPORTS
+// ======================================
+
+document
+    .getElementById("reportBtn")
+    ?.addEventListener("click", () => {
+
+        const year = yearSelect?.value;
+        const puja = pujaSelect?.value;
 
         if (!year || !puja) {
-            alert("Please select Year and Puja first.");
+
+            alert(
+                "Please select a Year and Puja first."
+            );
+
             return;
         }
 
-        sessionStorage.setItem("selectedYear", year);
-        sessionStorage.setItem("selectedPuja", puja);
-        sessionStorage.setItem("returnDashboard", "member-dashboard.html");
+        saveSelectedFilters();
 
-        const url = new URL("my-history.html", window.location.href);
+        sessionStorage.setItem(
+            "reportSource",
+            "member"
+        );
 
-        url.searchParams.set("year", year);
-        url.searchParams.set("puja", puja);
-        url.searchParams.set("_", Date.now());
+        navigateTo("report.html", {
+            year,
+            puja
+        });
 
-        window.location.href = url.href;
     });
-}
 
-// ==========================
-// Settings Button
-// ==========================
-document.getElementById("settingsBtn").addEventListener("click", () => {
 
-    showComingSoon("⚙️", "Settings");
+// ======================================
+// MY HISTORY
+// ======================================
 
-});
+document
+    .getElementById("historyBtn")
+    ?.addEventListener("click", () => {
+
+        const year = yearSelect?.value;
+        const puja = pujaSelect?.value;
+
+        if (!year || !puja) {
+
+            alert(
+                "Please select a Year and Puja first."
+            );
+
+            return;
+        }
+
+        saveSelectedFilters();
+
+        sessionStorage.setItem(
+            STORAGE_KEYS.returnDashboard,
+            "member-dashboard.html"
+        );
+
+        navigateTo("my-history.html", {
+            year,
+            puja
+        });
+
+    });
+
+
+// ======================================
+// LOGOUT
+// ======================================
+
+document
+    .getElementById("logoutBtn")
+    ?.addEventListener("click", () => {
+
+        clearInterval(dashboardLoaderTimer);
+        clearTimeout(dashboardLoaderHideTimer);
+
+        // Clear filters and login session.
+        sessionStorage.clear();
+
+        window.location.replace("login.html");
+
+    });
+
+
+// ======================================
+// CHANGE PASSWORD
+// ======================================
+
+document
+    .getElementById("changePasswordBtn")
+    ?.addEventListener("click", () => {
+
+        navigateTo("change-password.html");
+
+    });
+
+
+// ======================================
+// ANALYTICS
+// ======================================
+
+document
+    .getElementById("analyticsBtn")
+    ?.addEventListener("click", () => {
+
+        showComingSoon(
+            "📈",
+            "Analytics"
+        );
+
+    });
+
+
+// ======================================
+// SETTINGS
+// ======================================
+
+document
+    .getElementById("settingsBtn")
+    ?.addEventListener("click", () => {
+
+        showComingSoon(
+            "⚙️",
+            "Settings"
+        );
+
+    });
+
+
+// ======================================
+// START DASHBOARD
+// ======================================
+
+loadDashboardInit();
