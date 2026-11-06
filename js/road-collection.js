@@ -171,11 +171,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    // Returns only the numeric amount.
+    // The HTML already supplies the ₹ symbol.
+
     function formatCurrency(value) {
 
         const number = Number(value) || 0;
 
-        return "₹" + number.toLocaleString("en-IN", {
+        return number.toLocaleString("en-IN", {
             maximumFractionDigits: 2
         });
     }
@@ -205,118 +208,100 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       8. PREMIUM ALERT SYSTEM
+       8. INLINE NOTIFICATION SYSTEM
+       Replaces blocking popup alerts with compact page notices.
+       Existing showAlert() calls remain compatible.
        ===================================================== */
 
     function addAlertStyles() {
 
-        if ($("roadPremiumAlertStyles")) return;
+        if ($("roadInlineNoticeStyles")) return;
 
         const style = document.createElement("style");
-
-        style.id = "roadPremiumAlertStyles";
+        style.id = "roadInlineNoticeStyles";
 
         style.textContent = `
-            .road-alert-overlay {
-                position: fixed;
-                inset: 0;
-                z-index: 99999;
+            #roadInlineNotice {
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 18px;
-                background: rgba(10, 18, 35, .65);
-                backdrop-filter: blur(5px);
-                animation: roadFadeIn .2s ease;
-            }
-
-            .road-alert-box {
-                width: 100%;
-                max-width: 390px;
-                padding: 27px 23px;
-                border-radius: 20px;
-                background: #fff;
-                text-align: center;
-                box-shadow: 0 18px 55px rgba(0,0,0,.22);
-                animation: roadAlertIn .25s ease;
-                font-family: inherit;
-            }
-
-            .road-alert-icon {
-                width: 68px;
-                height: 68px;
-                margin: 0 auto 15px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 50%;
-                font-size: 32px;
+                align-items: flex-start;
+                gap: 12px;
+                width: calc(100% - 36px);
+                max-width: 700px;
+                box-sizing: border-box;
+                margin: 14px auto 18px;
+                padding: 13px 15px;
+                border: 1px solid #bfdbfe;
+                border-left: 4px solid #2563eb;
+                border-radius: 12px;
                 background: #eff6ff;
+                color: #1e3a8a;
+                font-family: inherit;
+                animation: roadNoticeIn .2s ease;
             }
 
-            .road-alert-box.error .road-alert-icon {
-                background: #fee2e2;
+            #roadInlineNotice .road-notice-icon {
+                flex: 0 0 auto;
+                font-size: 20px;
+                line-height: 1.35;
             }
 
-            .road-alert-box.success .road-alert-icon {
-                background: #dcfce7;
+            #roadInlineNotice .road-notice-content {
+                min-width: 0;
+                flex: 1;
             }
 
-            .road-alert-box.warning .road-alert-icon {
-                background: #fef3c7;
+            #roadInlineNotice .road-notice-title {
+                margin: 0 0 3px;
+                font-size: 15px;
+                font-weight: 700;
+                line-height: 1.4;
             }
 
-            .road-alert-box.info .road-alert-icon {
-                background: #dbeafe;
-            }
-
-            .road-alert-box h2 {
-                margin: 0 0 10px;
-                color: #172033;
-                font-size: 21px;
-                font-weight: 750;
-            }
-
-            .road-alert-box p {
+            #roadInlineNotice .road-notice-message {
                 margin: 0;
-                color: #64748b;
                 font-size: 14px;
-                line-height: 1.65;
+                line-height: 1.55;
                 white-space: pre-line;
                 overflow-wrap: anywhere;
             }
 
-            .road-alert-box button {
-                width: 100%;
-                margin-top: 23px;
-                padding: 13px 18px;
+            #roadInlineNotice .road-notice-close {
+                flex: 0 0 auto;
                 border: 0;
-                border-radius: 11px;
-                background: #1d4ed8;
-                color: #fff;
-                font-size: 15px;
-                font-weight: 700;
+                padding: 0 2px;
+                background: transparent;
+                color: inherit;
+                font-size: 21px;
+                line-height: 1;
                 cursor: pointer;
             }
 
-            .road-alert-box button:active {
-                transform: scale(.98);
+            #roadInlineNotice.success {
+                color: #166534;
+                background: #f0fdf4;
+                border-color: #bbf7d0;
+                border-left-color: #16a34a;
             }
 
-            @keyframes roadFadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
+            #roadInlineNotice.error {
+                color: #991b1b;
+                background: #fef2f2;
+                border-color: #fecaca;
+                border-left-color: #dc2626;
             }
 
-            @keyframes roadAlertIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(12px) scale(.96);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                }
+            #roadInlineNotice.warning {
+                color: #92400e;
+                background: #fffbeb;
+                border-color: #fde68a;
+                border-left-color: #d97706;
+            }
+
+            #roadInlineNotice.info {
+                color: #1e40af;
+                background: #eff6ff;
+                border-color: #bfdbfe;
+                border-left-color: #2563eb;
             }
 
             #roadRestrictionMessage {
@@ -331,6 +316,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 font-size: 16px;
                 font-weight: 600;
                 line-height: 1.6;
+            }
+
+            @keyframes roadNoticeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-5px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @media (max-width: 480px) {
+                #roadInlineNotice {
+                    width: calc(100% - 28px);
+                    margin: 12px auto 16px;
+                    padding: 12px;
+                }
+
+                #roadInlineNotice .road-notice-message {
+                    font-size: 13px;
+                }
             }
         `;
 
@@ -347,52 +355,101 @@ document.addEventListener("DOMContentLoaded", () => {
 
         addAlertStyles();
 
-        const oldAlert = $("roadPremiumAlert");
+        const oldNotice = $("roadInlineNotice");
 
-        if (oldAlert) oldAlert.remove();
+        if (oldNotice) oldNotice.remove();
 
-        const overlay = document.createElement("div");
+        const allowedTypes = [
+            "success",
+            "error",
+            "warning",
+            "info"
+        ];
 
-        overlay.id = "roadPremiumAlert";
-        overlay.className = "road-alert-overlay";
+        if (!allowedTypes.includes(type)) {
+            type = "error";
+        }
 
-        const box = document.createElement("div");
+        const notice = document.createElement("div");
 
-        box.className = "road-alert-box " + type;
+        notice.id = "roadInlineNotice";
+        notice.className = type;
 
-        const iconElement = document.createElement("div");
+        notice.setAttribute(
+            "role",
+            type === "error" ? "alert" : "status"
+        );
 
-        iconElement.className = "road-alert-icon";
+        notice.setAttribute(
+            "aria-live",
+            type === "error" ? "assertive" : "polite"
+        );
+
+        const iconElement = document.createElement("span");
+
+        iconElement.className = "road-notice-icon";
         iconElement.textContent = icon;
+        iconElement.setAttribute("aria-hidden", "true");
 
-        const heading = document.createElement("h2");
+        const content = document.createElement("div");
 
+        content.className = "road-notice-content";
+
+        const heading = document.createElement("p");
+
+        heading.className = "road-notice-title";
         heading.textContent = title;
 
         const paragraph = document.createElement("p");
 
+        paragraph.className = "road-notice-message";
         paragraph.textContent = alertMessage;
 
-        const button = document.createElement("button");
+        content.append(heading, paragraph);
 
-        button.type = "button";
-        button.textContent = "OK";
+        const closeButton = document.createElement("button");
 
-        button.addEventListener("click", () => {
-            overlay.remove();
-        });
+        closeButton.type = "button";
+        closeButton.className = "road-notice-close";
+        closeButton.textContent = "×";
 
-        box.append(
-            iconElement,
-            heading,
-            paragraph,
-            button
+        closeButton.setAttribute(
+            "aria-label",
+            "Dismiss notification"
         );
 
-        overlay.appendChild(box);
-        document.body.appendChild(overlay);
+        closeButton.addEventListener(
+            "click",
+            () => notice.remove()
+        );
 
-        button.focus();
+        notice.append(
+            iconElement,
+            content,
+            closeButton
+        );
+
+        const anchor =
+            document.querySelector(".topbar") ||
+            vehicleNo.closest("section") ||
+            vehicleNo.parentElement;
+
+        if (anchor && anchor.parentNode) {
+
+            anchor.insertAdjacentElement(
+                "afterend",
+                notice
+            );
+
+        } else {
+
+            document.body.prepend(notice);
+        }
+
+        notice.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
     }
 
 
@@ -449,7 +506,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Avoid browser/proxy caching of an old search response.
-        url.searchParams.set("_request", String(Date.now()));
+        url.searchParams.set(
+            "_request",
+            String(Date.now())
+        );
 
         const options = {
             method: "GET",
@@ -468,6 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (!response.ok) {
+
             throw new Error(
                 "The Apps Script server returned HTTP " +
                 response.status + "."
@@ -479,7 +540,9 @@ document.addEventListener("DOMContentLoaded", () => {
         let result;
 
         try {
+
             result = JSON.parse(responseText);
+
         } catch (error) {
 
             console.error(
@@ -494,7 +557,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (!result || typeof result !== "object") {
-            throw new Error("Invalid response received from server.");
+
+            throw new Error(
+                "Invalid response received from server."
+            );
         }
 
         return result;
@@ -508,6 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function getCollectorDetails() {
 
         return {
+
             collectorId: String(
                 sessionStorage.getItem("memberId") || ""
             ).trim(),
@@ -577,11 +644,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const topbar = document.querySelector(".topbar");
 
             if (topbar) {
+
                 topbar.insertAdjacentElement(
                     "afterend",
                     restriction
                 );
+
             } else {
+
                 document.body.prepend(restriction);
             }
         }
@@ -645,6 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+                          
     /* =====================================================
        16. DISPLAY ALREADY COLLECTED VEHICLE
        ===================================================== */
@@ -680,13 +751,6 @@ document.addEventListener("DOMContentLoaded", () => {
             alreadyCollected.classList.remove("hidden");
         }
 
-        showAlert(
-            "ℹ️",
-            "Already Collected",
-            "This vehicle has already been recorded for " +
-            selectedYear + " — " + selectedPuja + ".",
-            "info"
-        );
     }
 
 
@@ -796,24 +860,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 collectionForm.classList.remove("hidden");
             }
 
-            if (result.vehicleType) {
-
-                showAlert(
-                    "✅",
-                    "Vehicle Found",
-                    "Vehicle details found. You can now enter the collection amount.",
-                    "success"
-                );
-
-            } else {
-
-                showAlert(
-                    "🚗",
-                    "New Vehicle",
-                    "This vehicle is not in the vehicle master. Select its type and enter the collection amount.",
-                    "info"
-                );
-            }
 
         } catch (error) {
 
@@ -1003,16 +1049,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 message.classList.remove("hidden");
             }
 
-            showAlert(
-                "✅",
-                "Collection Saved Successfully",
-                "Vehicle: " + number +
-                "\nAmount: " + formatCurrency(enteredAmount) +
-                "\nCollection ID: " +
-                (result.collectionId || "Generated") +
-                "\n\nThe collection has been recorded.",
-                "success"
-            );
 
         } catch (error) {
 
@@ -1219,3 +1255,5 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 });
+
+
