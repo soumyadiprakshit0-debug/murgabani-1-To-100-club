@@ -522,6 +522,192 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = url.href;
     }
 
+
+
+
+    
+/* =====================================================
+   PREMIUM ROAD COLLECTION RESTRICTION NOTIFICATION
+   ===================================================== */
+
+function showRoadCollectionRestrictionAlert() {
+
+    // Prevent multiple notifications
+    if (document.getElementById("roadRestrictionModal")) {
+        return;
+    }
+
+    // Add notification styles once
+    if (!document.getElementById("roadRestrictionModalStyles")) {
+
+        const style = document.createElement("style");
+
+        style.id = "roadRestrictionModalStyles";
+
+        style.textContent = `
+            .road-restriction-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 99999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(15, 23, 42, 0.62);
+                backdrop-filter: blur(7px);
+                -webkit-backdrop-filter: blur(7px);
+                animation: roadModalFade .22s ease;
+            }
+
+            .road-restriction-modal {
+                width: 100%;
+                max-width: 390px;
+                padding: 28px 24px 23px;
+                border-radius: 22px;
+                background: #ffffff;
+                text-align: center;
+                box-shadow: 0 22px 65px rgba(0,0,0,.25);
+                animation: roadModalSlide .28s ease;
+            }
+
+            .road-restriction-icon {
+                width: 76px;
+                height: 76px;
+                margin: 0 auto 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: #fff4d6;
+                font-size: 36px;
+            }
+
+            .road-restriction-modal h2 {
+                margin: 0 0 12px;
+                color: #172033;
+                font-size: 22px;
+                font-weight: 750;
+            }
+
+            .road-restriction-modal p {
+                margin: 0;
+                color: #64748b;
+                font-size: 15px;
+                line-height: 1.7;
+            }
+
+            .road-restriction-modal button {
+                width: 100%;
+                margin-top: 25px;
+                padding: 14px;
+                border: none;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #1d4ed8, #2563eb);
+                color: #ffffff;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: transform .2s, opacity .2s;
+            }
+
+            .road-restriction-modal button:active {
+                transform: scale(.97);
+                opacity: .9;
+            }
+
+            @keyframes roadModalFade {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes roadModalSlide {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px) scale(.96);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            @media(max-width: 480px) {
+                .road-restriction-modal {
+                    max-width: 100%;
+                    padding: 25px 21px 21px;
+                    border-radius: 20px;
+                }
+
+                .road-restriction-modal h2 {
+                    font-size: 21px;
+                }
+
+                .road-restriction-modal p {
+                    font-size: 14px;
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    // Create modal
+    const overlay = document.createElement("div");
+
+    overlay.id = "roadRestrictionModal";
+    overlay.className = "road-restriction-overlay";
+
+    overlay.innerHTML = `
+        <div class="road-restriction-modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="roadRestrictionTitle">
+
+            <div class="road-restriction-icon">
+                ⚠️
+            </div>
+
+            <h2 id="roadRestrictionTitle">
+                Road Collection Unavailable
+            </h2>
+
+            <p>
+                Road Collection is available only during
+                <strong>Saraswati Puja</strong>.
+
+                <br><br>
+
+                Please select Saraswati Puja from the
+                dashboard to access this feature.
+            </p>
+
+            <button type="button" id="roadRestrictionClose">
+                Got it
+            </button>
+
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeButton =
+        document.getElementById("roadRestrictionClose");
+
+    closeButton.addEventListener("click", () => {
+        overlay.remove();
+    });
+
+    // Close when tapping outside the modal
+    overlay.addEventListener("click", event => {
+        if (event.target === overlay) {
+            overlay.remove();
+        }
+    });
+
+    closeButton.focus();
+}
+
+
     // ==================================================
     // 21. ROAD COLLECTION
     // ==================================================
@@ -536,11 +722,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 event.preventDefault();
 
-                alert(
-                    "Road Collection is available only during Saraswati Puja."
-                );
-
-                return;
+               showRoadCollectionRestrictionAlert();
+return;
             }
 
             saveSelectedFilters();
