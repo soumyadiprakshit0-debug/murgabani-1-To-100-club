@@ -4,107 +4,202 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Road Collection</title>
+    <title>Road Collection | Murgabani 1 To 100 Club</title>
 
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/road-collection.css">
-<link rel="stylesheet" href="css/vehicle-scanner.css">
+    <!-- EXISTING CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/road-collection.css">
+
+    <!-- SCANNER CSS -->
+    <link rel="stylesheet" href="css/vehicle-scanner.css">
 
 </head>
 
 <body>
 
-<!-- BACK BUTTON -->
+    <!-- BACK BUTTON -->
 
-<div class="road-topbar">
+    <div class="road-topbar">
 
-    <button
-        type="button"
-        id="backDashboardBtn"
-        class="back-dashboard">
-        ❮ Back to Dashboard
-    </button>
+        <button
+            type="button"
+            id="backDashboardBtn"
+            class="back-dashboard">
 
-</div>
+            ❮ Back to Dashboard
 
-<div class="container">
+        </button>
 
-    <h2>🚛 Road Collection</h2>
+    </div>
 
-    <!-- SEARCH CARD -->
 
-    <div class="card">
+    <div class="container">
 
-        <label>Vehicle Number</label>
+        <h2>🚛 Road Collection</h2>
 
-        <input
-            type="text"
-            id="vehicleNo"
-            placeholder="Enter Vehicle Number"
-            autocomplete="off">
 
-        <!-- VEHICLE SCANNER -->
+        <!-- ================================= -->
+        <!-- VEHICLE SEARCH CARD -->
+        <!-- ================================= -->
 
-        <div class="vehicle-scanner">
+        <div class="card">
 
-            <div class="scanner-buttons">
+            <label for="vehicleNo">
+                Vehicle Number
+            </label>
+
+
+            <!-- VEHICLE INPUT + SCANNER ICONS -->
+
+            <div class="vehicle-search-row">
+
+                <input
+                    type="text"
+                    id="vehicleNo"
+                    placeholder="Enter Vehicle Number"
+                    autocomplete="off"
+                    spellcheck="false"
+                    autocapitalize="characters">
+
+
+                <!-- LIVE CAMERA ICON -->
 
                 <button
                     type="button"
                     id="openCameraBtn"
-                    class="scanner-btn camera-btn">
-                    📷 Live Camera Scan
+                    class="scanner-icon-btn camera-icon-btn"
+                    title="Scan using live camera"
+                    aria-label="Open live camera">
+
+                    📷
+
                 </button>
+
+
+                <!-- PHOTO SCAN ICON -->
 
                 <button
                     type="button"
                     id="openPhotoBtn"
-                    class="scanner-btn photo-btn">
-                    🖼️ Scan from Photo
+                    class="scanner-icon-btn photo-icon-btn"
+                    title="Scan from photo"
+                    aria-label="Scan from photo">
+
+                    🖼️
+
                 </button>
 
             </div>
 
-            <!-- LIVE CAMERA -->
+
+            <!-- ================================= -->
+            <!-- CAMERA POPUP -->
+            <!-- ================================= -->
 
             <div
                 id="cameraPanel"
-                class="camera-panel hidden">
+                class="camera-modal hidden"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="cameraModalTitle">
 
-                <video
-                    id="vehicleCamera"
-                    autoplay
-                    muted
-                    playsinline>
-                </video>
+                <div class="camera-modal-content">
 
-                <div class="camera-guide">
-                    Position the vehicle number plate inside the camera view.
-                </div>
 
-                <div class="camera-actions">
+                    <!-- POPUP HEADER -->
+
+                    <div class="camera-modal-header">
+
+                        <h3 id="cameraModalTitle">
+                            📷 Scan Vehicle Number
+                        </h3>
+
+
+                        <!-- CLOSE BUTTON -->
+
+                        <button
+                            type="button"
+                            id="closeCameraBtn"
+                            class="camera-close-icon"
+                            aria-label="Close camera">
+
+                            ✕
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- CAMERA VIEW -->
+
+                    <div class="camera-view-container">
+
+                        <video
+                            id="vehicleCamera"
+                            autoplay
+                            muted
+                            playsinline>
+                        </video>
+
+
+                        <!-- SCANNING GUIDE -->
+
+                        <div class="camera-scan-guide">
+
+                            <div class="scan-frame"></div>
+
+                            <p>
+                                Position the vehicle number plate
+                                inside this frame.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SCANNER STATUS -->
+
+                    <div
+                        id="scannerStatus"
+                        class="scanner-status"
+                        aria-live="polite">
+
+                        Starting camera...
+
+                    </div>
+
+
+                    <!-- MANUAL CAPTURE FALLBACK -->
 
                     <button
                         type="button"
-                        id="captureScanBtn">
-                        📸 Capture & Scan
+                        id="captureScanBtn"
+                        class="camera-capture-btn hidden">
+
+                        📸 Capture Photo
+
                     </button>
 
-                    <button
-                        type="button"
-                        id="closeCameraBtn"
-                        class="scanner-close-btn">
-                        Close Camera
-                    </button>
+
+                    <p class="camera-help-text">
+
+                        Keep the number plate clear, properly focused
+                        and well-lit.
+
+                    </p>
 
                 </div>
 
             </div>
 
+
+            <!-- ================================= -->
             <!-- PHOTO INPUT -->
+            <!-- ================================= -->
 
             <input
                 type="file"
@@ -113,142 +208,234 @@
                 capture="environment"
                 hidden>
 
-            <!-- OCR STATUS -->
 
-            <div
-                id="scannerStatus"
-                class="scanner-status hidden"
-                aria-live="polite">
-            </div>
+            <!-- ================================= -->
+            <!-- SEARCH BUTTON -->
+            <!-- ================================= -->
 
-        </div>
+            <button
+                type="button"
+                id="searchBtn">
 
-        <button id="searchBtn">
-            Search
-        </button>
+                Search
 
-    </div>
-
-    <!-- LOADING -->
-
-    <div
-        id="loading"
-        class="loading hidden">
-
-        Searching...
-
-    </div>
-
-    <!-- ALREADY COLLECTED -->
-
-    <div
-        id="alreadyCollected"
-        class="card hidden">
-
-        <h3>Already Collected</h3>
-
-        <p><b>Vehicle:</b> <span id="aVehicle"></span></p>
-
-        <p><b>Type:</b> <span id="aType"></span></p>
-
-        <p><b>Amount:</b> ₹<span id="aAmount"></span></p>
-
-        <p><b>Collector:</b> <span id="aCollector"></span></p>
-
-        <p><b>Date:</b> <span id="aDate"></span></p>
-
-        <button id="searchAgainBtn">
-            Search Another Vehicle
-        </button>
-
-    </div>
-
-    <!-- COLLECTION FORM -->
-
-    <div
-        id="collectionForm"
-        class="card hidden">
-
-        <input type="hidden" id="date">
-
-        <label>Vehicle Type</label>
-
-        <select id="vehicleType">
-
-            <option value="">Select</option>
-
-            <option>Truck</option>
-            <option>Truck (407)</option>
-            <option>Truck (AC Car)</option>
-            <option>Bus</option>
-            <option>Private Car</option>
-            <option>Toto</option>
-            <option>Bike</option>
-            <option>Tractor</option>
-            <option>Others</option>
-
-        </select>
-
-        <label>Amount</label>
-
-        <input
-            type="number"
-            id="amount"
-            placeholder="Enter Amount">
-
-        <button id="saveBtn">
-            Save Collection
-        </button>
-
-    </div>
-
-    <!-- SUCCESS MESSAGE -->
-
-    <div
-        id="message"
-        class="hidden">
-
-        <div class="card success-card">
-
-            <h3>✅ Collection Saved</h3>
-
-            <p>
-                <b>Collection ID :</b>
-                <span id="mCollectionId"></span>
-            </p>
-
-            <p>
-                <b>Vehicle No :</b>
-                <span id="mVehicle"></span>
-            </p>
-
-            <p>
-                <b>Amount :</b>
-                ₹<span id="mAmount"></span>
-            </p>
-
-            <button id="nextBtn">
-                Collect Another Vehicle
             </button>
 
         </div>
 
+
+
+        <!-- ================================= -->
+        <!-- LOADING -->
+        <!-- ================================= -->
+
+        <div
+            id="loading"
+            class="loading hidden">
+
+            Searching...
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- ALREADY COLLECTED -->
+        <!-- ================================= -->
+
+        <div
+            id="alreadyCollected"
+            class="card hidden">
+
+            <h3>Already Collected</h3>
+
+            <p>
+                <b>Vehicle:</b>
+                <span id="aVehicle"></span>
+            </p>
+
+            <p>
+                <b>Type:</b>
+                <span id="aType"></span>
+            </p>
+
+            <p>
+                <b>Amount:</b>
+                ₹<span id="aAmount"></span>
+            </p>
+
+            <p>
+                <b>Collector:</b>
+                <span id="aCollector"></span>
+            </p>
+
+            <p>
+                <b>Date:</b>
+                <span id="aDate"></span>
+            </p>
+
+            <button
+                type="button"
+                id="searchAgainBtn">
+
+                Search Another Vehicle
+
+            </button>
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- COLLECTION FORM -->
+        <!-- ================================= -->
+
+        <div
+            id="collectionForm"
+            class="card hidden">
+
+            <input
+                type="hidden"
+                id="date">
+
+
+            <label for="vehicleType">
+                Vehicle Type
+            </label>
+
+            <select id="vehicleType">
+
+                <option value="">
+                    Select
+                </option>
+
+                <option>Truck</option>
+
+                <option>Truck (407)</option>
+
+                <option>Truck (AC Car)</option>
+
+                <option>Bus</option>
+
+                <option>Private Car</option>
+
+                <option>Toto</option>
+
+                <option>Bike</option>
+
+                <option>Tractor</option>
+
+                <option>Others</option>
+
+            </select>
+
+
+            <label for="amount">
+                Amount
+            </label>
+
+            <input
+                type="number"
+                id="amount"
+                placeholder="Enter Amount">
+
+
+            <button
+                type="button"
+                id="saveBtn">
+
+                Save Collection
+
+            </button>
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- SUCCESS MESSAGE -->
+        <!-- ================================= -->
+
+        <div
+            id="message"
+            class="hidden">
+
+            <div class="card success-card">
+
+                <h3>
+                    ✅ Collection Saved
+                </h3>
+
+
+                <p>
+
+                    <b>Collection ID:</b>
+
+                    <span id="mCollectionId"></span>
+
+                </p>
+
+
+                <p>
+
+                    <b>Vehicle No:</b>
+
+                    <span id="mVehicle"></span>
+
+                </p>
+
+
+                <p>
+
+                    <b>Amount:</b>
+
+                    ₹<span id="mAmount"></span>
+
+                </p>
+
+
+                <button
+                    type="button"
+                    id="nextBtn">
+
+                    Collect Another Vehicle
+
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
 
-</div>
 
-<!-- EXISTING SCRIPTS - PRESERVED -->
 
-<script src="js/config.js"></script>
-<script src="js/road-collection.js"></script>
+    <!-- ================================= -->
+    <!-- EXISTING JAVASCRIPT -->
+    <!-- DO NOT REMOVE OR RENAME -->
+    <!-- ================================= -->
 
-<!-- OCR LIBRARY -->
+    <script src="js/config.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="js/road-collection.js"></script>
 
-<!-- NEW SCANNER MODULE -->
 
-<script src="js/vehicle-scanner.js"></script>
+
+    <!-- ================================= -->
+    <!-- OCR LIBRARY -->
+    <!-- ================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+
+
+    <!-- ================================= -->
+    <!-- VEHICLE SCANNER MODULE -->
+    <!-- ================================= -->
+
+    <script src="js/vehicle-scanner.js"></script>
+
 
 </body>
+
 </html>
