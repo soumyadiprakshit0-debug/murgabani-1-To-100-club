@@ -41,9 +41,7 @@
         <h2>🚛 Road Collection</h2>
 
 
-        <!-- ================================= -->
         <!-- VEHICLE SEARCH CARD -->
-        <!-- ================================= -->
 
         <div class="card">
 
@@ -52,7 +50,7 @@
             </label>
 
 
-            <!-- VEHICLE INPUT + SCANNER ICONS -->
+            <!-- VEHICLE INPUT + CAMERA ICON -->
 
             <div class="vehicle-search-row">
 
@@ -65,39 +63,21 @@
                     autocapitalize="characters">
 
 
-                <!-- LIVE CAMERA ICON -->
-
                 <button
                     type="button"
                     id="openCameraBtn"
                     class="scanner-icon-btn camera-icon-btn"
-                    title="Scan using live camera"
-                    aria-label="Open live camera">
+                    title="Scan vehicle number"
+                    aria-label="Open vehicle number scanner">
 
                     📷
-
-                </button>
-
-
-                <!-- PHOTO SCAN ICON -->
-
-                <button
-                    type="button"
-                    id="openPhotoBtn"
-                    class="scanner-icon-btn photo-icon-btn"
-                    title="Scan from photo"
-                    aria-label="Scan from photo">
-
-                    🖼️
 
                 </button>
 
             </div>
 
 
-            <!-- ================================= -->
             <!-- CAMERA POPUP -->
-            <!-- ================================= -->
 
             <div
                 id="cameraPanel"
@@ -109,16 +89,13 @@
                 <div class="camera-modal-content">
 
 
-                    <!-- POPUP HEADER -->
+                    <!-- HEADER -->
 
                     <div class="camera-modal-header">
 
                         <h3 id="cameraModalTitle">
-                            📷 Scan Vehicle Number
+                            📷 Vehicle Number Scanner
                         </h3>
-
-
-                        <!-- CLOSE BUTTON -->
 
                         <button
                             type="button"
@@ -145,15 +122,15 @@
                         </video>
 
 
-                        <!-- SCANNING GUIDE -->
+                        <!-- GREEN SCANNING FRAME -->
 
                         <div class="camera-scan-guide">
 
                             <div class="scan-frame"></div>
 
                             <p>
-                                Position the vehicle number plate
-                                inside this frame.
+                                Place the complete vehicle number
+                                inside the green frame.
                             </p>
 
                         </div>
@@ -173,22 +150,24 @@
                     </div>
 
 
-                    <!-- MANUAL CAPTURE FALLBACK -->
+                    <!-- MANUAL SCAN BUTTON -->
 
                     <button
                         type="button"
                         id="captureScanBtn"
-                        class="camera-capture-btn hidden">
+                        class="camera-capture-btn">
 
-                        📸 Capture Photo
+                        <span>🔍</span>
+                        Scan Vehicle Number
 
                     </button>
 
 
                     <p class="camera-help-text">
 
-                        Keep the number plate clear, properly focused
-                        and well-lit.
+                        Keep the vehicle stationary.
+                        Make sure the number plate is clear and focused.
+                        Tap Scan when ready.
 
                     </p>
 
@@ -197,21 +176,7 @@
             </div>
 
 
-            <!-- ================================= -->
-            <!-- PHOTO INPUT -->
-            <!-- ================================= -->
-
-            <input
-                type="file"
-                id="vehiclePhotoInput"
-                accept="image/*"
-                capture="environment"
-                hidden>
-
-
-            <!-- ================================= -->
             <!-- SEARCH BUTTON -->
-            <!-- ================================= -->
 
             <button
                 type="button"
@@ -225,9 +190,7 @@
 
 
 
-        <!-- ================================= -->
         <!-- LOADING -->
-        <!-- ================================= -->
 
         <div
             id="loading"
@@ -239,9 +202,7 @@
 
 
 
-        <!-- ================================= -->
         <!-- ALREADY COLLECTED -->
-        <!-- ================================= -->
 
         <div
             id="alreadyCollected"
@@ -286,9 +247,7 @@
 
 
 
-        <!-- ================================= -->
         <!-- COLLECTION FORM -->
-        <!-- ================================= -->
 
         <div
             id="collectionForm"
@@ -305,26 +264,16 @@
 
             <select id="vehicleType">
 
-                <option value="">
-                    Select
-                </option>
+                <option value="">Select</option>
 
                 <option>Truck</option>
-
                 <option>Truck (407)</option>
-
                 <option>Truck (AC Car)</option>
-
                 <option>Bus</option>
-
                 <option>Private Car</option>
-
                 <option>Toto</option>
-
                 <option>Bike</option>
-
                 <option>Tractor</option>
-
                 <option>Others</option>
 
             </select>
@@ -352,9 +301,7 @@
 
 
 
-        <!-- ================================= -->
         <!-- SUCCESS MESSAGE -->
-        <!-- ================================= -->
 
         <div
             id="message"
@@ -362,37 +309,22 @@
 
             <div class="card success-card">
 
-                <h3>
-                    ✅ Collection Saved
-                </h3>
-
+                <h3>✅ Collection Saved</h3>
 
                 <p>
-
                     <b>Collection ID:</b>
-
                     <span id="mCollectionId"></span>
-
                 </p>
 
-
                 <p>
-
                     <b>Vehicle No:</b>
-
                     <span id="mVehicle"></span>
-
                 </p>
-
 
                 <p>
-
                     <b>Amount:</b>
-
                     ₹<span id="mAmount"></span>
-
                 </p>
-
 
                 <button
                     type="button"
@@ -409,29 +341,19 @@
     </div>
 
 
-
-    <!-- ================================= -->
-    <!-- EXISTING JAVASCRIPT -->
-    <!-- DO NOT REMOVE OR RENAME -->
-    <!-- ================================= -->
+    <!-- EXISTING JAVASCRIPT - PRESERVED -->
 
     <script src="js/config.js"></script>
 
     <script src="js/road-collection.js"></script>
 
 
-
-    <!-- ================================= -->
     <!-- OCR LIBRARY -->
-    <!-- ================================= -->
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 
-
-    <!-- ================================= -->
-    <!-- VEHICLE SCANNER MODULE -->
-    <!-- ================================= -->
+    <!-- SCANNER MODULE -->
 
     <script src="js/vehicle-scanner.js"></script>
 
