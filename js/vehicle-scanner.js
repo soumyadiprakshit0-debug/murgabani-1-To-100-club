@@ -1,149 +1,96 @@
 
 /* =========================================================
    MURGABANI 1 TO 100 CLUB
-   VEHICLE NUMBER SCANNER — OPTIMIZED VERSION
+   VEHICLE NUMBER SCANNER — IMPROVED OCR
 
-   Features:
-   1. Live camera popup
-   2. Automatic continuous number detection
-   3. Cropped camera-frame OCR
-   4. Persistent Tesseract OCR worker
-   5. Repeated detection confirmation
-   6. Photo upload / camera photo OCR
-   7. Automatic vehicle number input
-   8. Existing Search and Save logic preserved
+   - OCR crop aligned with green camera guide
+   - Correct object-fit: cover coordinate mapping
+   - High-resolution crop enlargement
+   - Grayscale, contrast and sharpening
+   - Second OCR preprocessing attempt
+   - Persistent OCR worker
+   - Repeated detection confirmation
+   - Photo OCR support
+   - Existing collection system unchanged
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
     "use strict";
 
-    /* =====================================================
-       1. DOM ELEMENTS
-    ===================================================== */
-
     const $ = id => document.getElementById(id);
 
     const vehicleNo = $("vehicleNo");
-
     const openCameraBtn = $("openCameraBtn");
     const openPhotoBtn = $("openPhotoBtn");
-
     const cameraPanel = $("cameraPanel");
     const vehicleCamera = $("vehicleCamera");
-
     const captureScanBtn = $("captureScanBtn");
     const closeCameraBtn = $("closeCameraBtn");
-
     const vehiclePhotoInput = $("vehiclePhotoInput");
     const scannerStatus = $("scannerStatus");
 
-
     if (
-        !vehicleNo ||
-        !openCameraBtn ||
-        !openPhotoBtn ||
-        !cameraPanel ||
-        !vehicleCamera ||
-        !captureScanBtn ||
-        !closeCameraBtn ||
-        !vehiclePhotoInput ||
-        !scannerStatus
+        !vehicleNo || !openCameraBtn || !openPhotoBtn ||
+        !cameraPanel || !vehicleCamera || !captureScanBtn ||
+        !closeCameraBtn || !vehiclePhotoInput || !scannerStatus
     ) {
-
-        console.error(
-            "Vehicle Scanner: Required HTML elements are missing."
-        );
-
+        console.error("Vehicle Scanner: Required elements missing.");
         return;
-
     }
 
-
-    /* =====================================================
-       2. CONFIGURATION
-    ===================================================== */
-
     const CONFIG = {
-
-        // Delay after each camera OCR operation.
-        scanDelay: 250,
-
-        // Require repeated matching detections.
+        scanDelay: 350,
         requiredMatches: 2,
+        minimumConfidence: 35,
 
-        // Minimum OCR confidence.
-        minimumConfidence: 40,
+        // Output crop resolution.
+        targetCropWidth: 1800,
 
-        // Maximum camera OCR image width.
-        cameraImageWidth: 1400,
+        // Must match the green guide in CSS.
+        guideWidth: 0.90,
+        guideHeight: 0.42,
 
-        // Maximum photo OCR image width.
-        photoImageWidth: 1800,
-
-        // Camera crop dimensions.
-        cropWidthRatio: 0.94,
-        cropHeightRatio: 0.45,
-
-        // Camera crop vertical position.
-        cropVerticalPosition: 0.50
-
+        // Camera video container is aspect-ratio: 4 / 3.
+        previewAspectRatio: 4 / 3
     };
 
-
-    /* =====================================================
-       3. STATE
-    ===================================================== */
-
     let cameraStream = null;
-
     let worker = null;
     let workerPromise = null;
 
-    let scanning = false;
     let cameraOpening = false;
+    let scanning = false;
+    let scanLoopRunning = false;
 
     let cameraSession = 0;
-
-    let scanLoopRunning = false;
 
     let lastDetectedNumber = "";
     let consecutiveMatches = 0;
 
-    let currentOperation = null;
-
 
     /* =====================================================
-       4. STATUS MESSAGE
+       STATUS
     ===================================================== */
 
     function showStatus(message, type = "") {
-
         scannerStatus.textContent = message;
-
         scannerStatus.className = "scanner-status";
 
         if (type) {
-
             scannerStatus.classList.add(type);
-
         }
-
     }
 
 
     function hideStatus() {
-
         scannerStatus.textContent = "";
-
-        scannerStatus.className =
-            "scanner-status hidden";
-
+        scannerStatus.className = "scanner-status hidden";
     }
 
 
     /* =====================================================
-       5. VALIDATE VEHICLE NUMBER
+       VEHICLE NUMBER VALIDATION
     ===================================================== */
 
     function extractVehicleNumber(text) {
@@ -152,84 +99,53 @@ document.addEventListener("DOMContentLoaded", () => {
             .toUpperCase()
             .replace(/[^A-Z0-9]/g, "");
 
-        const regex =
-            /[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}/g;
+        const matches = cleaned.match(
+            /[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}/g
+        );
 
-        const matches = cleaned.match(regex);
-
-        if (!matches || !matches.length) {
-
-            return "";
-
-        }
-
-        return matches[0];
-
+        return matches?.[0] || "";
     }
 
 
     /* =====================================================
-       6. LOAD OCR WORKER ONCE
+       OCR WORKER — LOAD ONLY ONCE
     ===================================================== */
 
     async function getOCRWorker() {
 
         if (!window.Tesseract) {
-
-            throw new Error(
-                "Tesseract OCR library is not loaded."
-            );
-
+            throw new Error("Tesseract library is not loaded.");
         }
 
-        if (worker) {
+        if (worker) return worker;
 
-            return worker;
-
-        }
-
-        if (workerPromise) {
-
-            return workerPromise;
-
-        }
+        if (workerPromise) return workerPromise;
 
         workerPromise = (async () => {
 
-            showStatus(
-                "Preparing scanner for first use..."
-            );
+            showStatus("Preparing scanner for first use...");
 
-            const newWorker =
-                await Tesseract.createWorker(
-                    "eng",
-                    1,
-                    {
-                        logger: info => {
+            const newWorker = await Tesseract.createWorker(
+                "eng",
+                1,
+                {
+                    logger: info => {
 
-                            if (
-                                info.status === "loading tesseract core"
-                            ) {
+                        if (
+                            info.status === "loading tesseract core"
+                        ) {
+                            showStatus("Loading OCR engine...");
+                        }
 
-                                showStatus(
-                                    "Loading OCR engine..."
-                                );
-
-                            } else if (
-                                info.status === "loading language traineddata"
-                            ) {
-
-                                showStatus(
-                                    "Loading English recognition data..."
-                                );
-
-                            }
-
+                        if (
+                            info.status === "loading language traineddata"
+                        ) {
+                            showStatus("Loading recognition data...");
                         }
                     }
-                );
+                }
+            );
 
-            // Vehicle registration character whitelist.
             await newWorker.setParameters({
 
                 tessedit_char_whitelist:
@@ -247,193 +163,361 @@ document.addEventListener("DOMContentLoaded", () => {
         })();
 
         try {
-
             return await workerPromise;
-
         } catch (error) {
-
             workerPromise = null;
-
             throw error;
-
         }
-
     }
 
 
     /* =====================================================
-       7. PREPARE IMAGE FOR OCR
+       CANVAS CREATION
     ===================================================== */
 
-    function prepareImage(source, maxWidth, crop = false) {
-
-        const sourceWidth =
-            source.videoWidth || source.naturalWidth || source.width;
-
-        const sourceHeight =
-            source.videoHeight || source.naturalHeight || source.height;
-
-        if (!sourceWidth || !sourceHeight) {
-
-            throw new Error(
-                "Image dimensions are unavailable."
-            );
-
-        }
-
-        let sx = 0;
-        let sy = 0;
-
-        let sw = sourceWidth;
-        let sh = sourceHeight;
-
-        // Crop central camera area.
-        if (crop) {
-
-            sw = Math.floor(
-                sourceWidth * CONFIG.cropWidthRatio
-            );
-
-            sh = Math.floor(
-                sourceHeight * CONFIG.cropHeightRatio
-            );
-
-            sx = Math.floor(
-                (sourceWidth - sw) / 2
-            );
-
-            sy = Math.floor(
-                sourceHeight * CONFIG.cropVerticalPosition -
-                sh / 2
-            );
-
-            sy = Math.max(
-                0,
-                Math.min(sourceHeight - sh, sy)
-            );
-
-        }
-
-        const scale = Math.min(
-            1.5,
-            maxWidth / sw
-        );
+    function createCanvas(width, height) {
 
         const canvas = document.createElement("canvas");
 
-        canvas.width = Math.max(
-            1,
-            Math.round(sw * scale)
+        canvas.width = Math.max(1, Math.round(width));
+        canvas.height = Math.max(1, Math.round(height));
+
+        return canvas;
+    }
+
+
+    /* =====================================================
+       MAP GREEN GUIDE TO ORIGINAL CAMERA FRAME
+
+       This accounts for object-fit: cover.
+       The OCR crop matches the visible green frame.
+    ===================================================== */
+
+    function getCameraCrop(source) {
+
+        const sourceWidth = source.videoWidth;
+        const sourceHeight = source.videoHeight;
+
+        const container = vehicleCamera.parentElement;
+
+        const displayWidth =
+            container.clientWidth || 640;
+
+        const displayHeight =
+            container.clientHeight ||
+            displayWidth / CONFIG.previewAspectRatio;
+
+        const scale = Math.max(
+            displayWidth / sourceWidth,
+            displayHeight / sourceHeight
         );
 
-        canvas.height = Math.max(
+        const renderedWidth = sourceWidth * scale;
+        const renderedHeight = sourceHeight * scale;
+
+        const offsetX =
+            (displayWidth - renderedWidth) / 2;
+
+        const offsetY =
+            (displayHeight - renderedHeight) / 2;
+
+        // Green frame dimensions.
+        const guideWidth =
+            displayWidth * CONFIG.guideWidth;
+
+        const guideHeight =
+            displayHeight * CONFIG.guideHeight;
+
+        const guideX =
+            (displayWidth - guideWidth) / 2;
+
+        const guideY =
+            (displayHeight - guideHeight) / 2;
+
+        // Convert visible preview coordinates to source pixels.
+        let sx = (guideX - offsetX) / scale;
+        let sy = (guideY - offsetY) / scale;
+
+        let sw = guideWidth / scale;
+        let sh = guideHeight / scale;
+
+        sx = Math.max(0, sx);
+        sy = Math.max(0, sy);
+
+        sw = Math.min(sw, sourceWidth - sx);
+        sh = Math.min(sh, sourceHeight - sy);
+
+        return {
+            sx: Math.round(sx),
+            sy: Math.round(sy),
+            sw: Math.round(sw),
+            sh: Math.round(sh)
+        };
+    }
+
+
+    /* =====================================================
+       IMAGE ENHANCEMENT
+
+       Creates:
+       1. Grayscale + contrast image
+       2. High-contrast threshold image
+    ===================================================== */
+
+    function enhanceCanvas(canvas) {
+
+        const context = canvas.getContext("2d", {
+            willReadFrequently: true
+        });
+
+        const imageData = context.getImageData(
+            0, 0, canvas.width, canvas.height
+        );
+
+        const pixels = imageData.data;
+
+        // Grayscale and contrast.
+        for (let i = 0; i < pixels.length; i += 4) {
+
+            const gray =
+                0.299 * pixels[i] +
+                0.587 * pixels[i + 1] +
+                0.114 * pixels[i + 2];
+
+            const contrast = Math.max(
+                0,
+                Math.min(
+                    255,
+                    (gray - 128) * 1.65 + 128
+                )
+            );
+
+            pixels[i] = contrast;
+            pixels[i + 1] = contrast;
+            pixels[i + 2] = contrast;
+        }
+
+        context.putImageData(imageData, 0, 0);
+
+        // Create a second adaptive-like threshold variant.
+        const second = createCanvas(
+            canvas.width,
+            canvas.height
+        );
+
+        const secondContext = second.getContext("2d", {
+            willReadFrequently: true
+        });
+
+        secondContext.drawImage(canvas, 0, 0);
+
+        const secondData = secondContext.getImageData(
+            0, 0, second.width, second.height
+        );
+
+        const data = secondData.data;
+
+        // Calculate average brightness.
+        let total = 0;
+        const count = data.length / 4;
+
+        for (let i = 0; i < data.length; i += 4) {
+            total += data[i];
+        }
+
+        const average = total / count;
+        const threshold = Math.max(
+            95,
+            Math.min(185, average * 0.88)
+        );
+
+        for (let i = 0; i < data.length; i += 4) {
+
+            const value =
+                data[i] > threshold ? 255 : 0;
+
+            data[i] = value;
+            data[i + 1] = value;
+            data[i + 2] = value;
+        }
+
+        secondContext.putImageData(secondData, 0, 0);
+
+        return {
+            contrast: canvas,
+            threshold: second
+        };
+    }
+
+
+    /* =====================================================
+       PREPARE CAMERA IMAGE
+
+       Uses exact green-frame crop and enlarges it.
+    ===================================================== */
+
+    function prepareCameraImage(source) {
+
+        const crop = getCameraCrop(source);
+
+        if (crop.sw <= 0 || crop.sh <= 0) {
+            throw new Error("Invalid camera crop.");
+        }
+
+        const scale = Math.max(
             1,
-            Math.round(sh * scale)
+            CONFIG.targetCropWidth / crop.sw
+        );
+
+        const canvas = createCanvas(
+            CONFIG.targetCropWidth,
+            crop.sh * scale
         );
 
         const context = canvas.getContext("2d", {
             willReadFrequently: true
         });
 
-        if (!context) {
-
-            throw new Error(
-                "Unable to prepare image."
-            );
-
-        }
-
-        // Improve character contrast.
-        context.filter = "grayscale(1) contrast(1.5)";
+        // Draw crop at higher resolution.
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
 
         context.drawImage(
             source,
-            sx,
-            sy,
-            sw,
-            sh,
+            crop.sx,
+            crop.sy,
+            crop.sw,
+            crop.sh,
             0,
             0,
             canvas.width,
             canvas.height
         );
 
-        context.filter = "none";
-
-        return canvas;
-
+        return enhanceCanvas(canvas);
     }
 
 
     /* =====================================================
-       8. OCR IMAGE
+       PREPARE PHOTO IMAGE
     ===================================================== */
 
-    async function recognizeImage(source, isCamera = false) {
+    function preparePhotoImage(source) {
+
+        const width =
+            source.naturalWidth || source.width;
+
+        const height =
+            source.naturalHeight || source.height;
+
+        const scale = Math.min(
+            2,
+            CONFIG.targetCropWidth / width
+        );
+
+        const canvas = createCanvas(
+            width * scale,
+            height * scale
+        );
+
+        const context = canvas.getContext("2d", {
+            willReadFrequently: true
+        });
+
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+
+        context.drawImage(
+            source,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        return enhanceCanvas(canvas);
+    }
+
+
+    /* =====================================================
+       OCR WITH TWO IMAGE VARIANTS
+    ===================================================== */
+
+    async function recognizePreparedImage(images) {
 
         const ocrWorker = await getOCRWorker();
 
-        const canvas = prepareImage(
-            source,
-            isCamera
-                ? CONFIG.cameraImageWidth
-                : CONFIG.photoImageWidth,
-            isCamera
+        // First pass: grayscale and contrast.
+        let result = await ocrWorker.recognize(
+            images.contrast
         );
 
-        const result = await ocrWorker.recognize(canvas);
+        let number = extractVehicleNumber(
+            result?.data?.text
+        );
+
+        let confidence = Number(
+            result?.data?.confidence || 0
+        );
+
+        if (
+            number &&
+            confidence >= CONFIG.minimumConfidence
+        ) {
+            return { number, confidence };
+        }
+
+        // Second pass: high-contrast threshold.
+        result = await ocrWorker.recognize(
+            images.threshold
+        );
+
+        number = extractVehicleNumber(
+            result?.data?.text
+        );
+
+        confidence = Number(
+            result?.data?.confidence || 0
+        );
 
         return {
-
-            text: result?.data?.text || "",
-
-            confidence: Number(
-                result?.data?.confidence || 0
-            )
-
+            number,
+            confidence
         };
-
     }
 
 
     /* =====================================================
-       9. FILL VEHICLE NUMBER
+       FILL EXISTING VEHICLE INPUT
     ===================================================== */
 
     function fillVehicleNumber(number) {
 
         vehicleNo.value = number;
 
-        // Preserve existing road-collection validation.
         vehicleNo.dispatchEvent(
-            new Event("input", {
-                bubbles: true
-            })
+            new Event("input", { bubbles: true })
         );
 
         vehicleNo.dispatchEvent(
-            new Event("change", {
-                bubbles: true
-            })
+            new Event("change", { bubbles: true })
         );
 
         vehicleNo.focus();
-
     }
 
 
     /* =====================================================
-       10. STOP CAMERA
+       STOP CAMERA
     ===================================================== */
 
     function stopCamera() {
 
-        // Invalidate the previous scanning session.
         cameraSession++;
 
         scanLoopRunning = false;
-
         scanning = false;
+        cameraOpening = false;
 
         lastDetectedNumber = "";
         consecutiveMatches = 0;
@@ -441,67 +525,56 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cameraStream) {
 
             cameraStream.getTracks().forEach(track => {
-
                 track.stop();
-
             });
 
             cameraStream = null;
-
         }
 
         vehicleCamera.srcObject = null;
 
         cameraPanel.classList.add("hidden");
 
-        cameraOpening = false;
-
         openCameraBtn.disabled = false;
-
+        openPhotoBtn.disabled = false;
         captureScanBtn.disabled = false;
-
     }
 
 
     /* =====================================================
-       11. CONFIRM CAMERA DETECTION
+       DETECTION CONFIRMATION
     ===================================================== */
 
     function confirmDetection(number, confidence) {
 
         if (
+            !number ||
             confidence < CONFIG.minimumConfidence
         ) {
-
+            lastDetectedNumber = "";
+            consecutiveMatches = 0;
             return false;
-
         }
 
         if (number === lastDetectedNumber) {
-
             consecutiveMatches++;
-
         } else {
-
             lastDetectedNumber = number;
-
             consecutiveMatches = 1;
-
         }
 
         showStatus(
-            "Possible number: " + number +
+            "Detected " + number +
             " — confirming " +
             consecutiveMatches + "/" +
             CONFIG.requiredMatches
         );
 
         if (
-            consecutiveMatches < CONFIG.requiredMatches
+            consecutiveMatches <
+            CONFIG.requiredMatches
         ) {
-
             return false;
-
         }
 
         fillVehicleNumber(number);
@@ -514,24 +587,16 @@ document.addEventListener("DOMContentLoaded", () => {
         stopCamera();
 
         return true;
-
     }
 
 
     /* =====================================================
-       12. AUTOMATIC CAMERA SCANNING
+       AUTOMATIC CAMERA SCANNING
     ===================================================== */
 
     async function automaticScan(session) {
 
-        if (
-            scanLoopRunning ||
-            !cameraStream
-        ) {
-
-            return;
-
-        }
+        if (scanLoopRunning) return;
 
         scanLoopRunning = true;
 
@@ -549,36 +614,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     try {
 
-                        const result = await recognizeImage(
-                            vehicleCamera,
-                            true
-                        );
+                        scanning = true;
 
-                        // Ignore results from a closed camera.
+                        const images =
+                            prepareCameraImage(vehicleCamera);
+
+                        const result =
+                            await recognizePreparedImage(images);
+
                         if (
                             !cameraStream ||
                             session !== cameraSession
                         ) {
-
                             break;
-
                         }
 
-                        const number =
-                            extractVehicleNumber(result.text);
-
-                        if (number) {
+                        if (result.number) {
 
                             const accepted = confirmDetection(
-                                number,
+                                result.number,
                                 result.confidence
                             );
 
-                            if (accepted) {
-
-                                break;
-
-                            }
+                            if (accepted) break;
 
                         } else {
 
@@ -586,48 +644,43 @@ document.addEventListener("DOMContentLoaded", () => {
                             consecutiveMatches = 0;
 
                             showStatus(
-                                "Scanning... Keep the number plate inside the frame."
+                                "Scanning... Keep the complete plate inside the green frame."
                             );
-
                         }
 
                     } catch (error) {
 
                         console.error(
-                            "Automatic OCR error:",
+                            "Camera OCR error:",
                             error
                         );
 
                         showStatus(
-                            "Scanning paused. Adjust the camera and try again.",
+                            "Recognition error. Adjust the camera and try again.",
                             "error"
                         );
 
-                        await new Promise(resolve =>
-                            setTimeout(resolve, 700)
-                        );
+                    } finally {
 
+                        scanning = false;
                     }
-
                 }
 
                 await new Promise(resolve =>
                     setTimeout(resolve, CONFIG.scanDelay)
                 );
-
             }
 
         } finally {
 
             scanLoopRunning = false;
-
+            scanning = false;
         }
-
     }
 
 
     /* =====================================================
-       13. OPEN LIVE CAMERA POPUP
+       OPEN CAMERA
     ===================================================== */
 
     async function openCamera() {
@@ -635,62 +688,41 @@ document.addEventListener("DOMContentLoaded", () => {
         if (
             cameraOpening ||
             cameraStream
-        ) {
-
-            return;
-
-        }
+        ) return;
 
         if (!navigator.mediaDevices?.getUserMedia) {
 
             showStatus(
-                "Camera access requires HTTPS and a supported browser.",
+                "Camera requires HTTPS and browser permission.",
                 "error"
             );
 
             return;
-
         }
 
         cameraOpening = true;
-
         openCameraBtn.disabled = true;
 
         cameraPanel.classList.remove("hidden");
 
-        showStatus(
-            "Opening camera..."
-        );
+        showStatus("Opening rear camera...");
 
         const session = ++cameraSession;
 
         try {
 
-            // Initialize camera.
             const stream =
                 await navigator.mediaDevices.getUserMedia({
 
                     video: {
-
-                        facingMode: {
-                            ideal: "environment"
-                        },
-
-                        width: {
-                            ideal: 1280
-                        },
-
-                        height: {
-                            ideal: 720
-                        }
-
+                        facingMode: { ideal: "environment" },
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
                     },
 
                     audio: false
-
                 });
 
-            // User may have closed the popup while permission was pending.
             if (session !== cameraSession) {
 
                 stream.getTracks().forEach(track =>
@@ -698,7 +730,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
                 return;
-
             }
 
             cameraStream = stream;
@@ -707,46 +738,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
             await vehicleCamera.play();
 
+            // Wait for actual video dimensions.
+            if (!vehicleCamera.videoWidth) {
+
+                await new Promise(resolve => {
+                    vehicleCamera.addEventListener(
+                        "loadedmetadata",
+                        resolve,
+                        { once: true }
+                    );
+                });
+            }
+
             showStatus(
-                "Preparing automatic number recognition..."
+                "Preparing number recognition..."
             );
 
-            // Reuse the same OCR worker for every frame.
             await getOCRWorker();
 
             if (
                 !cameraStream ||
                 session !== cameraSession
-            ) {
-
-                return;
-
-            }
+            ) return;
 
             cameraOpening = false;
 
             showStatus(
-                "Scanning automatically. Position the plate inside the frame."
+                "Scanning automatically. Keep the plate inside the green frame."
             );
 
             automaticScan(session);
 
         } catch (error) {
 
-            console.error(
-                "Camera initialization error:",
-                error
-            );
+            console.error("Camera error:", error);
 
             if (session === cameraSession) {
 
                 stopCamera();
 
                 showStatus(
-                    "Unable to start scanner. Check camera permission and internet connection.",
+                    "Unable to start camera. Check permission and internet connection.",
                     "error"
                 );
-
             }
 
         } finally {
@@ -754,18 +788,14 @@ document.addEventListener("DOMContentLoaded", () => {
             cameraOpening = false;
 
             if (!cameraStream) {
-
                 openCameraBtn.disabled = false;
-
             }
-
         }
-
     }
 
 
     /* =====================================================
-       14. MANUAL CAPTURE FALLBACK
+       MANUAL CAPTURE
     ===================================================== */
 
     async function captureAndScan() {
@@ -774,39 +804,30 @@ document.addEventListener("DOMContentLoaded", () => {
             !cameraStream ||
             scanning ||
             !vehicleCamera.videoWidth
-        ) {
-
-            return;
-
-        }
+        ) return;
 
         scanning = true;
-
         captureScanBtn.disabled = true;
 
         try {
 
-            showStatus(
-                "Capturing vehicle number..."
-            );
+            showStatus("Capturing number plate...");
 
-            const result = await recognizeImage(
-                vehicleCamera,
-                true
-            );
+            const images =
+                prepareCameraImage(vehicleCamera);
 
-            const number =
-                extractVehicleNumber(result.text);
+            const result =
+                await recognizePreparedImage(images);
 
             if (
-                number &&
+                result.number &&
                 result.confidence >= CONFIG.minimumConfidence
             ) {
 
-                fillVehicleNumber(number);
+                fillVehicleNumber(result.number);
 
                 showStatus(
-                    "✓ Detected: " + number,
+                    "✓ Detected: " + result.number,
                     "success"
                 );
 
@@ -815,37 +836,30 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
 
                 showStatus(
-                    "Number not recognised. Move closer and keep the plate in the frame.",
+                    "Unable to read the number. Move closer and improve lighting.",
                     "error"
                 );
-
             }
 
         } catch (error) {
 
-            console.error(
-                "Manual capture error:",
-                error
-            );
+            console.error(error);
 
             showStatus(
-                "Unable to process the camera image.",
+                "Image processing failed.",
                 "error"
             );
 
         } finally {
 
             scanning = false;
-
             captureScanBtn.disabled = false;
-
         }
-
     }
 
 
     /* =====================================================
-       15. PHOTO OCR
+       PHOTO SCANNING
     ===================================================== */
 
     async function scanPhoto(file) {
@@ -855,138 +869,110 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!file || !file.type.startsWith("image/")) {
 
             showStatus(
-                "Please select a valid image.",
+                "Please select a valid photo.",
                 "error"
             );
 
             return;
-
         }
 
         scanning = true;
-
         openPhotoBtn.disabled = true;
-
         openCameraBtn.disabled = true;
+
+        const imageURL = URL.createObjectURL(file);
 
         try {
 
-            showStatus(
-                "Preparing photo..."
+            showStatus("Opening photo...");
+
+            const image = new Image();
+
+            await new Promise((resolve, reject) => {
+
+                image.onload = resolve;
+                image.onerror = reject;
+                image.src = imageURL;
+
+            });
+
+            showStatus("Enhancing vehicle number image...");
+
+            const images = preparePhotoImage(image);
+
+            showStatus("Recognising vehicle number...");
+
+            const result =
+                await recognizePreparedImage(images);
+
+            console.log(
+                "Photo OCR:",
+                result.number,
+                "Confidence:",
+                result.confidence
             );
 
-            const imageURL =
-                URL.createObjectURL(file);
+            if (
+                result.number &&
+                result.confidence >= CONFIG.minimumConfidence
+            ) {
 
-            try {
-
-                const image = new Image();
-
-                await new Promise((resolve, reject) => {
-
-                    image.onload = resolve;
-
-                    image.onerror = reject;
-
-                    image.src = imageURL;
-
-                });
+                fillVehicleNumber(result.number);
 
                 showStatus(
-                    "Reading vehicle number from photo..."
+                    "✓ Vehicle number detected: " + result.number,
+                    "success"
                 );
 
-                const result = await recognizeImage(
-                    image,
-                    false
+            } else {
+
+                showStatus(
+                    "Number not recognised. Try a closer, clearer photo.",
+                    "error"
                 );
-
-                console.log(
-                    "Photo OCR:",
-                    result.text,
-                    "Confidence:",
-                    result.confidence
-                );
-
-                const number =
-                    extractVehicleNumber(result.text);
-
-                if (
-                    number &&
-                    result.confidence >= CONFIG.minimumConfidence
-                ) {
-
-                    fillVehicleNumber(number);
-
-                    showStatus(
-                        "✓ Vehicle number detected: " + number,
-                        "success"
-                    );
-
-                } else {
-
-                    showStatus(
-                        "Number not recognised. Select a clearer photo with the complete plate visible.",
-                        "error"
-                    );
-
-                }
-
-            } finally {
-
-                URL.revokeObjectURL(imageURL);
-
             }
 
         } catch (error) {
 
-            console.error(
-                "Photo OCR error:",
-                error
-            );
+            console.error("Photo OCR error:", error);
 
             showStatus(
-                "Unable to read the photo. Please try another image.",
+                "Unable to process this photo.",
                 "error"
             );
 
         } finally {
 
+            URL.revokeObjectURL(imageURL);
+
             scanning = false;
 
             openPhotoBtn.disabled = false;
-
             openCameraBtn.disabled = false;
 
             vehiclePhotoInput.value = "";
-
         }
-
     }
 
 
     /* =====================================================
-       16. OPEN PHOTO PICKER
+       PHOTO PICKER
     ===================================================== */
 
     function openPhotoPicker() {
 
         if (scanning) return;
 
-        // Stop the live camera before opening the photo picker.
-        if (cameraStream) {
-
+        if (cameraStream || cameraOpening) {
             stopCamera();
-
         }
 
         vehiclePhotoInput.click();
-
     }
 
 
     /* =====================================================
-       17. EVENT LISTENERS
+       EVENT LISTENERS
     ===================================================== */
 
     openCameraBtn.addEventListener(
@@ -994,56 +980,43 @@ document.addEventListener("DOMContentLoaded", () => {
         openCamera
     );
 
-
     openPhotoBtn.addEventListener(
         "click",
         openPhotoPicker
     );
-
 
     closeCameraBtn.addEventListener(
         "click",
         stopCamera
     );
 
-
     captureScanBtn.addEventListener(
         "click",
         captureAndScan
     );
 
-
     vehiclePhotoInput.addEventListener(
         "change",
         async event => {
 
-            const file =
-                event.target.files?.[0];
+            const file = event.target.files?.[0];
 
-            if (!file) return;
-
-            await scanPhoto(file);
-
+            if (file) {
+                await scanPhoto(file);
+            }
         }
     );
 
-
-    // Close popup when clicking outside its content.
     cameraPanel.addEventListener(
         "click",
         event => {
 
             if (event.target === cameraPanel) {
-
                 stopCamera();
-
             }
-
         }
     );
 
-
-    // Close popup using Escape key.
     document.addEventListener(
         "keydown",
         event => {
@@ -1052,16 +1025,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 event.key === "Escape" &&
                 !cameraPanel.classList.contains("hidden")
             ) {
-
                 stopCamera();
-
             }
-
         }
     );
 
-
-    // Release camera when leaving the page.
     window.addEventListener(
         "pagehide",
         () => {
@@ -1069,25 +1037,21 @@ document.addEventListener("DOMContentLoaded", () => {
             stopCamera();
 
             if (worker) {
-
                 worker.terminate();
-
                 worker = null;
-
             }
-
         }
     );
 
 
     /* =====================================================
-       18. INITIALIZATION
+       INITIALIZATION
     ===================================================== */
 
     hideStatus();
 
     console.log(
-        "Murgabani Vehicle Scanner initialized."
+        "Murgabani improved vehicle scanner initialized."
     );
 
 });
