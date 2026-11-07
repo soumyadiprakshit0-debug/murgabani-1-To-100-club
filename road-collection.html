@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,18 +11,13 @@
 
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/road-collection.css">
+<link rel="stylesheet" href="css/vehicle-scanner.css">
 
 </head>
 
 <body>
 
-<!-- ==========================
-     TOP NAVIGATION
-========================== -->
-
-<!-- ==========================
-     BACK BUTTON
-========================== -->
+<!-- BACK BUTTON -->
 
 <div class="road-topbar">
 
@@ -33,7 +29,7 @@
     </button>
 
 </div>
-  
+
 <div class="container">
 
     <h2>🚛 Road Collection</h2>
@@ -49,6 +45,83 @@
             id="vehicleNo"
             placeholder="Enter Vehicle Number"
             autocomplete="off">
+
+        <!-- VEHICLE SCANNER -->
+
+        <div class="vehicle-scanner">
+
+            <div class="scanner-buttons">
+
+                <button
+                    type="button"
+                    id="openCameraBtn"
+                    class="scanner-btn camera-btn">
+                    📷 Live Camera Scan
+                </button>
+
+                <button
+                    type="button"
+                    id="openPhotoBtn"
+                    class="scanner-btn photo-btn">
+                    🖼️ Scan from Photo
+                </button>
+
+            </div>
+
+            <!-- LIVE CAMERA -->
+
+            <div
+                id="cameraPanel"
+                class="camera-panel hidden">
+
+                <video
+                    id="vehicleCamera"
+                    autoplay
+                    muted
+                    playsinline>
+                </video>
+
+                <div class="camera-guide">
+                    Position the vehicle number plate inside the camera view.
+                </div>
+
+                <div class="camera-actions">
+
+                    <button
+                        type="button"
+                        id="captureScanBtn">
+                        📸 Capture & Scan
+                    </button>
+
+                    <button
+                        type="button"
+                        id="closeCameraBtn"
+                        class="scanner-close-btn">
+                        Close Camera
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- PHOTO INPUT -->
+
+            <input
+                type="file"
+                id="vehiclePhotoInput"
+                accept="image/*"
+                capture="environment"
+                hidden>
+
+            <!-- OCR STATUS -->
+
+            <div
+                id="scannerStatus"
+                class="scanner-status hidden"
+                aria-live="polite">
+            </div>
+
+        </div>
 
         <button id="searchBtn">
             Search
@@ -123,7 +196,6 @@
             id="amount"
             placeholder="Enter Amount">
 
-
         <button id="saveBtn">
             Save Collection
         </button>
@@ -165,8 +237,18 @@
 
 </div>
 
+<!-- EXISTING SCRIPTS - PRESERVED -->
+
 <script src="js/config.js"></script>
 <script src="js/road-collection.js"></script>
+
+<!-- OCR LIBRARY -->
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- NEW SCANNER MODULE -->
+
+<script src="js/vehicle-scanner.js"></script>
 
 </body>
 </html>
