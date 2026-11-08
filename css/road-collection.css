@@ -494,3 +494,140 @@ button:disabled{
     }
 
 }
+
+
+
+/* =====================================
+   ROAD COLLECTION - ALERT IMPROVEMENT
+===================================== */
+
+.alert,
+.alert-box,
+.message-alert {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Alert content must be allowed to grow */
+.alert-content,
+.alert-body,
+.alert-message {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    white-space: normal;
+}
+
+/* Alert heading */
+.alert h3,
+.alert-title,
+.alert-content strong {
+    display: block;
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+
+/* Alert description */
+.alert p,
+.alert-description,
+.alert-message {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+
+/* Alert icon */
+.alert-icon {
+    flex: 0 0 32px;
+    width: 32px;
+    font-size: 25px;
+    text-align: center;
+}
+
+/* Close button */
+.alert-close,
+.alert button {
+    flex: 0 0 auto;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+/* Error alert */
+.alert-error,
+.alert.alert-error {
+    background: #fff1f1;
+    border: 1px solid #f3cccc;
+    border-left: 6px solid #dc3545;
+    color: #842029;
+}
+
+/* Success alert */
+.alert-success,
+.alert.alert-success {
+    background: #edfff4;
+    border: 1px solid #c5efd5;
+    border-left: 6px solid #198754;
+    color: #146c43;
+}
+
+/* Warning alert */
+.alert-warning,
+.alert.alert-warning {
+    background: #fff8e7;
+    border: 1px solid #f5e2ac;
+    border-left: 6px solid #e5a000;
+    color: #856404;
+}
+
+/* Information alert */
+.alert-info,
+.alert.alert-info {
+    background: #eef6ff;
+    border: 1px solid #c9def8;
+    border-left: 6px solid #0d6efd;
+    color: #084298;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+    .alert,
+    .alert-box,
+    .message-alert {
+        padding: 14px;
+        gap: 10px;
+        border-radius: 13px;
+    }
+
+    .alert h3,
+    .alert-title {
+        font-size: 16px;
+    }
+
+    .alert p,
+    .alert-description,
+    .alert-message {
+        font-size: 14px;
+    }
+}
