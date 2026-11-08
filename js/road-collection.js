@@ -213,137 +213,382 @@ document.addEventListener("DOMContentLoaded", () => {
        Existing showAlert() calls remain compatible.
        ===================================================== */
 
-    function addAlertStyles() {
+    
+function addAlertStyles() {
 
-        if ($("roadInlineNoticeStyles")) return;
+    if ($("roadInlineNoticeStyles")) {
+        $("roadInlineNoticeStyles").remove();
+    }
 
-        const style = document.createElement("style");
-        style.id = "roadInlineNoticeStyles";
+    const style = document.createElement("style");
+    style.id = "roadInlineNoticeStyles";
 
-        style.textContent = `
+    style.textContent = `
+
+        /* =====================================
+           ROAD COLLECTION - PREMIUM ALERT
+        ===================================== */
+
+        #roadInlineNotice {
+
+            display: grid !important;
+
+            grid-template-columns: 34px minmax(0, 1fr) 30px !important;
+
+            align-items: start;
+
+            gap: 12px;
+
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+
+            box-sizing: border-box;
+
+            margin: 16px 0;
+
+            padding: 18px 16px;
+
+            border: 1px solid #fecaca;
+            border-left: 5px solid #dc2626;
+
+            border-radius: 14px;
+
+            background: #fff5f5;
+
+            color: #991b1b;
+
+            font-family: Arial, sans-serif;
+
+            box-shadow: 0 3px 12px rgba(220, 38, 38, 0.07);
+
+            animation: roadNoticeIn .22s ease;
+
+        }
+
+
+        /* ICON */
+
+        #roadInlineNotice .road-notice-icon {
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 34px;
+            min-width: 34px;
+
+            height: 34px;
+
+            border-radius: 50%;
+
+            background: #fee2e2;
+
+            font-size: 21px;
+
+            line-height: 1;
+
+        }
+
+
+        /* MESSAGE CONTENT */
+
+        #roadInlineNotice .road-notice-content {
+
+            display: block;
+
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+
+            flex: none;
+
+            overflow: visible;
+
+        }
+
+
+        /* ALERT HEADING */
+
+        #roadInlineNotice .road-notice-title {
+
+            display: block;
+
+            width: 100%;
+
+            margin: 0 0 7px;
+
+            color: #991b1b;
+
+            font-size: 17px;
+
+            font-weight: 700;
+
+            line-height: 1.4;
+
+            white-space: normal;
+
+            overflow-wrap: break-word;
+            word-break: normal;
+
+        }
+
+
+        /* ALERT DESCRIPTION */
+
+        #roadInlineNotice .road-notice-message {
+
+            display: block;
+
+            width: 100%;
+
+            margin: 0;
+
+            color: #7f1d1d;
+
+            font-size: 15px;
+
+            font-weight: 400;
+
+            line-height: 1.6;
+
+            white-space: pre-line;
+
+            overflow-wrap: break-word;
+            word-break: normal;
+
+        }
+
+
+        /* CLOSE BUTTON */
+
+        #roadInlineNotice .road-notice-close {
+
+            display: flex !important;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 30px !important;
+            min-width: 30px !important;
+
+            height: 30px !important;
+
+            margin: 0 !important;
+            padding: 0 !important;
+
+            border: none !important;
+
+            border-radius: 50%;
+
+            background: transparent !important;
+
+            color: #991b1b !important;
+
+            font-size: 25px !important;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+        }
+
+        #roadInlineNotice .road-notice-close:hover {
+
+            background: #fee2e2 !important;
+
+        }
+
+
+        /* ERROR */
+
+        #roadInlineNotice.error {
+
+            background: #fff5f5;
+            border-color: #fecaca;
+            border-left-color: #dc2626;
+            color: #991b1b;
+
+        }
+
+
+        /* SUCCESS */
+
+        #roadInlineNotice.success {
+
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            border-left-color: #16a34a;
+            color: #166534;
+
+        }
+
+        #roadInlineNotice.success .road-notice-icon {
+            background: #dcfce7;
+        }
+
+        #roadInlineNotice.success .road-notice-title,
+        #roadInlineNotice.success .road-notice-message {
+            color: #166534;
+        }
+
+
+        /* WARNING */
+
+        #roadInlineNotice.warning {
+
+            background: #fffbeb;
+            border-color: #fde68a;
+            border-left-color: #d97706;
+            color: #92400e;
+
+        }
+
+        #roadInlineNotice.warning .road-notice-icon {
+            background: #fef3c7;
+        }
+
+        #roadInlineNotice.warning .road-notice-title,
+        #roadInlineNotice.warning .road-notice-message {
+            color: #92400e;
+        }
+
+
+        /* INFORMATION */
+
+        #roadInlineNotice.info {
+
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            border-left-color: #2563eb;
+            color: #1e40af;
+
+        }
+
+        #roadInlineNotice.info .road-notice-icon {
+            background: #dbeafe;
+        }
+
+        #roadInlineNotice.info .road-notice-title,
+        #roadInlineNotice.info .road-notice-message {
+            color: #1e40af;
+        }
+
+
+        /* RESTRICTION MESSAGE */
+
+        #roadRestrictionMessage {
+
+            width: calc(100% - 30px);
+
+            box-sizing: border-box;
+
+            margin: 20px auto;
+
+            padding: 18px;
+
+            max-width: 700px;
+
+            border-radius: 12px;
+
+            background: #fff1f0;
+
+            border: 1px solid #f5b7b1;
+
+            color: #a93226;
+
+            text-align: center;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            line-height: 1.6;
+
+        }
+
+
+        /* ANIMATION */
+
+        @keyframes roadNoticeIn {
+
+            from {
+                opacity: 0;
+                transform: translateY(-7px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        /* MOBILE */
+
+        @media (max-width: 480px) {
+
             #roadInlineNotice {
-                display: flex;
-                align-items: flex-start;
-                gap: 12px;
-                width: calc(100% - 36px);
-                max-width: 700px;
-                box-sizing: border-box;
-                margin: 14px auto 18px;
-                padding: 13px 15px;
-                border: 1px solid #bfdbfe;
-                border-left: 4px solid #2563eb;
+
+                grid-template-columns: 30px minmax(0, 1fr) 26px !important;
+
+                gap: 9px;
+
+                padding: 15px 11px;
+
+                margin: 13px 0;
+
                 border-radius: 12px;
-                background: #eff6ff;
-                color: #1e3a8a;
-                font-family: inherit;
-                animation: roadNoticeIn .2s ease;
+
             }
 
             #roadInlineNotice .road-notice-icon {
-                flex: 0 0 auto;
-                font-size: 20px;
-                line-height: 1.35;
-            }
 
-            #roadInlineNotice .road-notice-content {
-                min-width: 0;
-                flex: 1;
+                width: 30px;
+                min-width: 30px;
+
+                height: 30px;
+
+                font-size: 19px;
+
             }
 
             #roadInlineNotice .road-notice-title {
-                margin: 0 0 3px;
-                font-size: 15px;
-                font-weight: 700;
-                line-height: 1.4;
+
+                font-size: 16px;
+
+                margin-bottom: 5px;
+
             }
 
             #roadInlineNotice .road-notice-message {
-                margin: 0;
+
                 font-size: 14px;
+
                 line-height: 1.55;
-                white-space: pre-line;
-                overflow-wrap: anywhere;
+
             }
 
             #roadInlineNotice .road-notice-close {
-                flex: 0 0 auto;
-                border: 0;
-                padding: 0 2px;
-                background: transparent;
-                color: inherit;
-                font-size: 21px;
-                line-height: 1;
-                cursor: pointer;
+
+                width: 26px !important;
+                min-width: 26px !important;
+
+                height: 26px !important;
+
+                font-size: 23px !important;
+
             }
 
-            #roadInlineNotice.success {
-                color: #166534;
-                background: #f0fdf4;
-                border-color: #bbf7d0;
-                border-left-color: #16a34a;
-            }
+        }
 
-            #roadInlineNotice.error {
-                color: #991b1b;
-                background: #fef2f2;
-                border-color: #fecaca;
-                border-left-color: #dc2626;
-            }
+    `;
 
-            #roadInlineNotice.warning {
-                color: #92400e;
-                background: #fffbeb;
-                border-color: #fde68a;
-                border-left-color: #d97706;
-            }
+    document.head.appendChild(style);
+}
 
-            #roadInlineNotice.info {
-                color: #1e40af;
-                background: #eff6ff;
-                border-color: #bfdbfe;
-                border-left-color: #2563eb;
-            }
-
-            #roadRestrictionMessage {
-                margin: 20px auto;
-                padding: 18px;
-                max-width: 700px;
-                border-radius: 12px;
-                background: #fff1f0;
-                border: 1px solid #f5b7b1;
-                color: #a93226;
-                text-align: center;
-                font-size: 16px;
-                font-weight: 600;
-                line-height: 1.6;
-            }
-
-            @keyframes roadNoticeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(-5px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            @media (max-width: 480px) {
-                #roadInlineNotice {
-                    width: calc(100% - 28px);
-                    margin: 12px auto 16px;
-                    padding: 12px;
-                }
-
-                #roadInlineNotice .road-notice-message {
-                    font-size: 13px;
-                }
-            }
-        `;
-
-        document.head.appendChild(style);
-    }
 
 
     function showAlert(
